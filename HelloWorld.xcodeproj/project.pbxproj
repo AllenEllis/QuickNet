@@ -10,7 +10,8 @@
 		9F05167B2464BA1C00CF4217 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F05167A2464BA1C00CF4217 /* AppDelegate.swift */; };
 		9F05167D2464BA1C00CF4217 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F05167C2464BA1C00CF4217 /* ViewController.swift */; };
 		9F05167F2464BA1E00CF4217 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F05167E2464BA1E00CF4217 /* Assets.xcassets */; };
-		9F0516822464BA1E00CF4217 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F0516802464BA1E00CF4217 /* Main.storyboard */; };
+		9F05168A2464CF9400CF4217 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F0516802464BA1E00CF4217 /* Main.storyboard */; };
+		9F1A604D246537D100008BA8 /* QuickDigit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1A604C246537D100008BA8 /* QuickDigit.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,8 @@
 		9F0516812464BA1E00CF4217 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		9F0516832464BA1E00CF4217 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F0516842464BA1E00CF4217 /* HelloWorld.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HelloWorld.entitlements; sourceTree = "<group>"; };
+		9F1A604C246537D100008BA8 /* QuickDigit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickDigit.swift; sourceTree = "<group>"; };
+		9F8C023A24660B4F0016BF49 /* swift-tensorflow-RELEASE-0.8.xctoolchain */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-tensorflow-RELEASE-0.8.xctoolchain"; path = "../../../../Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.8.xctoolchain"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +42,7 @@
 			children = (
 				9F0516792464BA1C00CF4217 /* HelloWorld */,
 				9F0516782464BA1C00CF4217 /* Products */,
+				9F8C023924660B4F0016BF49 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -59,8 +63,17 @@
 				9F0516802464BA1E00CF4217 /* Main.storyboard */,
 				9F0516832464BA1E00CF4217 /* Info.plist */,
 				9F0516842464BA1E00CF4217 /* HelloWorld.entitlements */,
+				9F1A604C246537D100008BA8 /* QuickDigit.swift */,
 			);
 			path = HelloWorld;
+			sourceTree = "<group>";
+		};
+		9F8C023924660B4F0016BF49 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9F8C023A24660B4F0016BF49 /* swift-tensorflow-RELEASE-0.8.xctoolchain */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -122,7 +135,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F05167F2464BA1E00CF4217 /* Assets.xcassets in Resources */,
-				9F0516822464BA1E00CF4217 /* Main.storyboard in Resources */,
+				9F05168A2464CF9400CF4217 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F05167D2464BA1C00CF4217 /* ViewController.swift in Sources */,
+				9F1A604D246537D100008BA8 /* QuickDigit.swift in Sources */,
 				9F05167B2464BA1C00CF4217 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,13 +286,16 @@
 				CODE_SIGN_ENTITLEMENTS = HelloWorld/HelloWorld.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = HelloWorld/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = "/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.4.xctoolchain/usr/lib/swift/macosx";
 				PRODUCT_BUNDLE_IDENTIFIER = com.friendshipcreative.HelloWorld;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -295,6 +312,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = "/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.4.xctoolchain/usr/lib/swift/macosx";
 				PRODUCT_BUNDLE_IDENTIFIER = com.friendshipcreative.HelloWorld;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
