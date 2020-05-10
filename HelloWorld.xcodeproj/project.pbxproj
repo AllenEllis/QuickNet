@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C152B7FDA521B216FF905DE /* libPods-HelloWorld.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 566B7E0141B04BDB71CE55FD /* libPods-HelloWorld.a */; };
 		9F05167B2464BA1C00CF4217 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F05167A2464BA1C00CF4217 /* AppDelegate.swift */; };
 		9F05167D2464BA1C00CF4217 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F05167C2464BA1C00CF4217 /* ViewController.swift */; };
 		9F05167F2464BA1E00CF4217 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F05167E2464BA1E00CF4217 /* Assets.xcassets */; };
@@ -15,6 +16,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		173DB25EA0686CFAD1B5ACB9 /* Pods-HelloWorld.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelloWorld.debug.xcconfig"; path = "Target Support Files/Pods-HelloWorld/Pods-HelloWorld.debug.xcconfig"; sourceTree = "<group>"; };
+		53B1FDC7B50E35BAA06C8DD5 /* Pods-HelloWorld.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelloWorld.release.xcconfig"; path = "Target Support Files/Pods-HelloWorld/Pods-HelloWorld.release.xcconfig"; sourceTree = "<group>"; };
+		566B7E0141B04BDB71CE55FD /* libPods-HelloWorld.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HelloWorld.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F0516772464BA1C00CF4217 /* HelloWorld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloWorld.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F05167A2464BA1C00CF4217 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9F05167C2464BA1C00CF4217 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -31,18 +35,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C152B7FDA521B216FF905DE /* libPods-HelloWorld.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3B3E16019A719C5B5FBA7FA6 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				173DB25EA0686CFAD1B5ACB9 /* Pods-HelloWorld.debug.xcconfig */,
+				53B1FDC7B50E35BAA06C8DD5 /* Pods-HelloWorld.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		9F05166E2464BA1C00CF4217 = {
 			isa = PBXGroup;
 			children = (
 				9F0516792464BA1C00CF4217 /* HelloWorld */,
 				9F0516782464BA1C00CF4217 /* Products */,
 				9F8C023924660B4F0016BF49 /* Frameworks */,
+				3B3E16019A719C5B5FBA7FA6 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				9F8C023A24660B4F0016BF49 /* swift-tensorflow-RELEASE-0.8.xctoolchain */,
+				566B7E0141B04BDB71CE55FD /* libPods-HelloWorld.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -83,6 +100,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9F0516872464BA1E00CF4217 /* Build configuration list for PBXNativeTarget "HelloWorld" */;
 			buildPhases = (
+				E57A543E1E414F4019391ED3 /* [CP] Check Pods Manifest.lock */,
 				9F0516732464BA1C00CF4217 /* Sources */,
 				9F0516742464BA1C00CF4217 /* Frameworks */,
 				9F0516752464BA1C00CF4217 /* Resources */,
@@ -140,6 +158,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E57A543E1E414F4019391ED3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HelloWorld-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9F0516732464BA1C00CF4217 /* Sources */ = {
@@ -281,6 +324,7 @@
 		};
 		9F0516882464BA1E00CF4217 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 173DB25EA0686CFAD1B5ACB9 /* Pods-HelloWorld.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = HelloWorld/HelloWorld.entitlements;
@@ -295,18 +339,20 @@
 				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = "/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.4.xctoolchain/usr/lib/swift/macosx";
 				PRODUCT_BUNDLE_IDENTIFIER = com.friendshipcreative.HelloWorld;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		9F0516892464BA1E00CF4217 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 53B1FDC7B50E35BAA06C8DD5 /* Pods-HelloWorld.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = HelloWorld/HelloWorld.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = HelloWorld/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -315,6 +361,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = "/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.4.xctoolchain/usr/lib/swift/macosx";
 				PRODUCT_BUNDLE_IDENTIFIER = com.friendshipcreative.HelloWorld;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

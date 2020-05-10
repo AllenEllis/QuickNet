@@ -8,7 +8,8 @@
 
 import Cocoa
 
-class ViewController: NSViewController {
+class ViewController: NSViewController
+{
 //    @IBOutlet weak var nameField: NSTextField!
 //    @IBOutlet weak var helloLabel: NSTextField!
     
@@ -22,10 +23,22 @@ class ViewController: NSViewController {
     @IBOutlet weak var host_condensed: NSTextFieldCell!
     
     
+    @IBOutlet weak var cidr_notation: NSTextFieldCell!
+    @IBOutlet weak var netmask: NSTextFieldCell!
+    @IBOutlet weak var wildcard_mask: NSTextFieldCell!
+    @IBOutlet weak var netbox_status: NSTextFieldCell!
+    
+    
+    
     @IBOutlet weak var host_row_network: NSGridRow!
     @IBOutlet weak var host_row_broadcast: NSGridRow!
     @IBOutlet weak var host_row_usable: NSGridRow!
     @IBOutlet weak var host_row_condensed: NSGridRow!
+    
+    // Buttons
+    @IBOutlet weak var shareButton: NSButton!
+    @IBOutlet weak var nextButton: NSButton!
+    @IBOutlet weak var prevButton: NSButton!
     
     @IBOutlet var tableView: NSTableView!
     
@@ -33,8 +46,7 @@ class ViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-   
-        // Do any additional setup after loading the view.
+        shareButton.sendAction(on: .leftMouseDown)
     }
 
     override var representedObject: Any? {
@@ -43,6 +55,8 @@ class ViewController: NSViewController {
         }
     }
 
+    // MARK: - IBActions - buttons
+    
     @IBAction func enterButtonPressed(_ sender: Any) {
         doCalc()
     }
@@ -51,10 +65,66 @@ class ViewController: NSViewController {
     }
     
     @IBAction func prevButtonClicked(_ sender: Any) {
+        goToPrevious()
     }
     
     
     @IBAction func nextButtonClicked(_ sender: Any) {
+        goToNext()
+    }
+    
+    @IBAction func shareButtonClicked(_ sender: NSButton) {
+        let text = ip_input.stringValue
+        let sharingPicker = NSSharingServicePicker(items: [text])
+        
+        sharingPicker.delegate = self
+        sharingPicker.show(relativeTo: NSZeroRect, of: sender, preferredEdge: .minY)
+    }
+    
+    func setClipboard(text: String) {
+        let clipboard = NSPasteboard.general
+        clipboard.clearContents()
+        clipboard.setString(text, forType: .string)
+    }
+
+    
+    
+    // MARK: - IBActions - menus
+
+    @IBAction func IncreaseMaskSizeMenuItemSelected(_ sender: Any) {
+      increaseMaskSize()
+    }
+
+    @IBAction func DecreaseMaskSizeMenuItemSelected(_ sender: Any) {
+      decreaseMaskSize()
+    }
+
+    @IBAction func GoToNextMenuItemSelected(_ sender: Any) {
+//      goToNext()
+        
+//        nextButton.sendAction(on: .leftMouseDown)
+//        nextButton.
+    }
+    
+    @IBAction func GoToPreviousMenuItemSelected(_ sender: Any) {
+//      goToPrevious()
+        prevButton.sendAction(on: .leftMouseDown)
+    }
+    
+    func increaseMaskSize() {
+        doCalc()
+    }
+    
+    func decreaseMaskSize() {
+        doCalc()
+    }
+    
+    func goToNext() {
+        doCalc()
+    }
+    
+    func goToPrevious() {
+        doCalc()
     }
     
     func doCalc() {
@@ -100,7 +170,14 @@ class ViewController: NSViewController {
         host_first_host.stringValue = ip_obj.host_first_host
         host_last_host.stringValue = ip_obj.host_last_host
         host_broadcast.stringValue = ip_obj.host_broadcast
-        host_usable.stringValue = ip_obj.host_usable_hosts
+        host_usable.stringValue = String(ip_obj.host_usable_hosts)
+        
+        cidr_notation.stringValue = ip_obj.cidr_notation
+        netmask.stringValue = ip_obj.netmask
+        netbox_status.stringValue = ip_obj.netbox_status
+//        wildcard_mask.stringValue = ip_obj.wildcard_mask
+        
+        
         
 
     }
@@ -163,6 +240,28 @@ class ViewController: NSViewController {
     
 }
 
+
+
+// MARK: Other Functions
+extension ViewController: NSSharingServicePickerDelegate {
+    func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
+        guard let image = NSImage(named: NSImage.Name("copy")) else {
+            return proposedServices
+        }
+        
+        var share = proposedServices
+        let customService = NSSharingService(title: "Copy Text", image: image, alternateImage: image, handler: {
+            if let text = items.first as? String {
+                self.setClipboard(text: text)
+            }
+        })
+        share.insert(customService, at: 0)
+        
+        return share
+    }
+}
+
+
 extension ViewController: NSTableViewDataSource, NSTableViewDelegate {
     
     func numberOfRows(in tableView: NSTableView) -> Int {
@@ -193,4 +292,7 @@ extension ViewController: NSTableViewDataSource, NSTableViewDelegate {
 
         return cell
     }
+    
 }
+
+
