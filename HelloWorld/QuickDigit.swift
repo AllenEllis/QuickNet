@@ -7,7 +7,8 @@
 //
 
 import Foundation
-//import Alamofire
+import Alamofire
+import SwiftyJSON
 
 // comment so that Colab does not interpret `#if ...` as a comment
 #if canImport(PythonKit)
@@ -37,6 +38,7 @@ class ip_view {
     var netmask: String
     var wildcard_mask: String
     var netbox_status: String
+    var netbox_link: String
     
     var subnet_data: [[String: String]] = [[:]]
     
@@ -59,6 +61,7 @@ class ip_view {
         self.netmask = "0.0.0.0"
         self.wildcard_mask = "0.0.0.0"
         self.netbox_status = "Unknown"
+        self.netbox_link = ""
         
         self.calculate()
         
@@ -111,7 +114,11 @@ class ip_view {
             self.cidr_notation = "/" + String(ip4.getNetworkSize())
             self.netmask = ip4.getSubnetMask()
             self.wildcard_mask = ip4.getSubnetMask()
-            self.netbox_status = getNetboxStatus()
+//            self.netbox_status = getNetboxStatus()
+//            self.netbox_status = getHostHeaderFromHttpBin()
+            self.netbox_status = "hello world"
+            self.getNetboxStatus()
+            self.subnet_data = populate_table4()
             
         }
         
@@ -148,7 +155,46 @@ class ip_view {
   
     }
     
-    func populate_table4() {
+    func populate_table4() -> [[String: String]]  {
+        
+        
+        var data = [[String: String]]()
+        
+        var i = 32
+        
+        while (i >= 0) {
+            
+            let i_ip_obj = SubnetCalculator4(ip_address: self.ip_addr_str, network_size: i)
+            
+            
+            var diff = i - self.network_size
+            var count = Int(pow(Double(2),Double(diff)))
+            
+            var example = ""
+            
+            switch (i) {
+                
+            case 24:
+                example = "VLAN"
+            case 30:
+                example = "Peer to Peer link"
+                
+            default:
+                example = ""
+            }
+            
+            data.append( [
+                "subnet" : i_ip_obj.getNetworkPortion(),
+                "prefix" : "/\(i)",
+                "count" : String(count),
+                "example" : example
+            ])
+            i -= 1
+        }
+        
+
+            
+        return(data)
         
     }
     
@@ -183,21 +229,59 @@ class ip_view {
         return(data)
     }
     
+        
     /**
      Queries the user's Netbox API to see if this prefix exists
      */
     
-    public func getNetboxStatus() -> String {
+    public func getNetboxStatus() {
         
-        
-        let netbox_uri = "https://netbox.allenell.is/api/"
-        
-        let netbox_query = "ipam/prefixes/?q=204.16.246.128/28"
-        
+        let netbox_uri = "https://netbox.allenell.is"
+        let netbox_query = "/api/ipam/prefixes/?q=204.16.246.128/28"
         let netbox_token = "5af68f02619c52ba4d172d993b822cb289e5983f"
-        let loginString = "Token: " + netbox_token
+        let loginString = "Token " + netbox_token
         
-        let url = URL(string: netbox_uri + netbox_query)!
+        let headers: HTTPHeaders = [
+            "Authorization": loginString
+        ]
+
+        AF.request(netbox_uri + netbox_query, headers: headers).responseJSON { response in
+            debugPrint(response)
+            
+            switch response.result {
+            case .success:
+                print("Validation Successful)")
+
+                if let json = response.data {
+                    do{
+                        let data = try JSON(data: json)
+                        let description = data["results"][0]["description"]
+                        let id = data["results"][0]["id"]
+                        let urlid = "\(netbox_uri)/ipam/prefixes/\(id)"
+                        let returnval = "\(description) \(urlid)"
+                        print("DATA PARSED: \(returnval)")
+                        self.netbox_status = "\(description)"
+                        self.netbox_link = urlid
+                    }
+                    catch{
+                    print("JSON Error")
+                    }
+
+                }
+                
+            case .failure(let error):
+                print(error)
+            }
+
+
+        }
+        
+
+        
+//        let json = try? JSONSerialization.responseJSON(with: data, options: [])
+
+        
+        
 //        var request = URLRequest(url: url!)
 //        request.httpMethod = "GET"
 //        request.setValue("Token \(netbox_token)", forHTTPHeaderField: "Authorization")
@@ -238,7 +322,8 @@ class ip_view {
 //            print(error)
 //        }
         
-        return "WIP"
+
+        
     }
 }
 

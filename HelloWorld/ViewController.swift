@@ -174,7 +174,17 @@ class ViewController: NSViewController
         
         cidr_notation.stringValue = ip_obj.cidr_notation
         netmask.stringValue = ip_obj.netmask
-        netbox_status.stringValue = ip_obj.netbox_status
+        
+        netbox_status.stringValue = "Processing..."
+        ip_obj.getNetboxStatus()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
+            self.netbox_status.stringValue = ip_obj.netbox_status
+//            self.netbox_status.attr
+//                = ip_obj.netbox_status
+        })
+        
+
 //        wildcard_mask.stringValue = ip_obj.wildcard_mask
         
         
@@ -238,6 +248,9 @@ class ViewController: NSViewController
 //        helloLabel.stringValue = greeting
 //    }
     
+
+
+    
 }
 
 
@@ -293,6 +306,29 @@ extension ViewController: NSTableViewDataSource, NSTableViewDelegate {
         return cell
     }
     
+    
+//    // Code that was supposed to allow copy & paste in table views. Didn't throw any errors but also didn't work
+//    // https://stackoverflow.com/a/44989449/7560156
+//
+//    func tableView(_ tableView: NSTableView, canPerformAction action:
+//    Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
+//        if (action.description == "copy:") {
+//            return true
+//        } else {
+//            return false
+//        }
+//    }
+//
+//    func tableView(_ tableView: NSTableView, performAction action: Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) {
+//        if (action.description == "copy:") {
+//            //...
+//        }
+//    }
+//
+//    func tableView(_ tableView: NSTableView, shouldShowMenuForRowAt indexPath: IndexPath) -> Bool {
+//        return true
+//    }
+//
 }
 
 
