@@ -253,7 +253,7 @@ class ip_view {
     public func getNetboxStatus() {
         
         let netbox_uri = "https://netbox.allenell.is"
-        let netbox_query = "/api/ipam/prefixes/?q=204.16.246.128/28"
+        let netbox_query = "/api/ipam/prefixes/?q=\(self.ip_addr_str)/\(self.network_size)"
         let netbox_token = "5af68f02619c52ba4d172d993b822cb289e5983f"
         let loginString = "Token " + netbox_token
         
@@ -271,13 +271,24 @@ class ip_view {
                 if let json = response.data {
                     do{
                         let data = try JSON(data: json)
-                        let description = data["results"][0]["description"]
-                        let id = data["results"][0]["id"]
-                        let urlid = "\(netbox_uri)/ipam/prefixes/\(id)"
-                        let returnval = "\(description) \(urlid)"
-                        print("DATA PARSED: \(returnval)")
+                        
+                        var description = ""
+                        for (index, element) in data["results"] {
+                            let this_description = element["description"]
+//                            var description = "\(description) / \(this_description)"
+                            if(Int(index) ?? 0 > 0 ) {
+                                description.append(" / ")
+                            }
+                            description.append("\(this_description)")
+                            let id = data["results"][0]["id"]
+                            let urlid = "\(netbox_uri)/ipam/prefixes/\(id)"
+                            let returnval = "\(description) \(urlid)"
+                            print("DATA PARSED: \(returnval)")
+                            self.netbox_link = urlid // todo - this doesn't do anything
+                        }
+                        
                         self.netbox_status = "\(description)"
-                        self.netbox_link = urlid
+
                     }
                     catch{
                     print("JSON Error")
@@ -544,7 +555,12 @@ class SubnetCalculator4
 //        return network_range_quads.joined(separator: ".")
         let broadcast_addr = self.getBroadcastAddress()
         let broadcast_addr_int = ip2long(ip_address: broadcast_addr)
-        let next_network_int = broadcast_addr_int + 1
+        var next_network_int = broadcast_addr_int + 1
+        
+        if(next_network_int > 4294967295){
+            next_network_int = 4294967295 // the highest possible IPv4 address
+        }
+        
         let next_network_string = long2ip(long: next_network_int)
         return next_network_string
     }
@@ -562,25 +578,15 @@ class SubnetCalculator4
     
     private func prevNetworkCalculation(format: String, separator: String = "") -> String
     {
-//          var = String(format: format,   (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses - 1) >> 24)))
-//  let test = String(format: format, (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses - 1) >> 24) & 0xFF))
-
-//        let number_ip_addresses = getNumberIPAddresses()
-//        let network_quads = [
-//            String(format: format, (self.quads[0] & ((self.subnet_mask >> 24)) - (number_ip_addresses >> 24)) & 0xFF),
-//            String(format: format, (self.quads[1] & ((self.subnet_mask >> 16)) - (number_ip_addresses >> 16)) & 0xFF),
-//            String(format: format, (self.quads[2] & ((self.subnet_mask >> 8)) - (number_ip_addresses >> 8)) & 0xFF),
-//            String(format: format, (self.quads[3] & ((self.subnet_mask >> 0)) - (number_ip_addresses >> 0)) & 0xFF),
-//        ];
-////        NSLog("New network quads are: \(network_quads)")
-//        NSLog("Bitwise math for last bit is")
-//        NSLog(String(self.quads[1]))
-////        NSLog("\(self.quads[1]) & (\(self.subnet_mask) >> 16)) - ((\(number_ip_addresses) >> 24) & 0xFF)")
-//        return network_quads.joined(separator: separator)
         
         let network_addr = self.getNetworkPortion()
         let network_addr_int = ip2long(ip_address: network_addr)
-        let prev_network_int = network_addr_int - self.getNumberIPAddresses()
+        var prev_network_int = network_addr_int - self.getNumberIPAddresses()
+        
+        if(prev_network_int < 0) {
+            prev_network_int = 0
+        }
+        
         let prev_network_string = long2ip(long: prev_network_int)
         return prev_network_string
         
