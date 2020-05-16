@@ -1,7 +1,7 @@
 import XCTest
 
-import HelloWorldTests
+import QuickNetTests
 
 var tests = [XCTestCaseEntry]()
-tests += HelloWorldTests.allTests()
+tests += QuickNetTests.allTests()
 XCTMain(tests)
