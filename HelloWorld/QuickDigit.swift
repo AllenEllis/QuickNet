@@ -33,12 +33,16 @@ class ip_view {
     var host_broadcast: String
     var host_usable_hosts: Int
     var host_condensed: String
+    var host_integer: Int
     
     var cidr_notation: String
     var netmask: String
     var wildcard_mask: String
     var netbox_status: String
     var netbox_link: String
+    
+    var next_network: String
+    var prev_network: String
     
     var subnet_data: [[String: String]] = [[:]]
     
@@ -56,12 +60,16 @@ class ip_view {
         self.host_condensed = "0.0.0.0"
         self.ipv_type = "0"
         self.subnet_data = []
+        self.host_integer = 0
         
         self.cidr_notation = "/0"
         self.netmask = "0.0.0.0"
         self.wildcard_mask = "0.0.0.0"
         self.netbox_status = "Unknown"
         self.netbox_link = ""
+        
+        self.next_network = "0.0.0.0"
+        self.prev_network = "0.0.0.0"
         
         self.calculate()
         
@@ -117,6 +125,10 @@ class ip_view {
 //            self.netbox_status = getNetboxStatus()
 //            self.netbox_status = getHostHeaderFromHttpBin()
             self.netbox_status = "hello world"
+            self.next_network = ip4.getNextNetwork()
+            self.prev_network = ip4.getPrevNetwork()
+            self.host_integer = ip4.getIPAddressInteger()
+            
             self.getNetboxStatus()
             self.subnet_data = populate_table4()
             
@@ -167,8 +179,8 @@ class ip_view {
             let i_ip_obj = SubnetCalculator4(ip_address: self.ip_addr_str, network_size: i)
             
             
-            var diff = i - self.network_size
-            var count = Int(pow(Double(2),Double(diff)))
+            let diff = i - self.network_size
+            let count = Int(pow(Double(2),Double(diff)))
             
             var example = ""
             
@@ -178,6 +190,8 @@ class ip_view {
                 example = "VLAN"
             case 30:
                 example = "Peer to Peer link"
+            case 32:
+                example = "Host"
                 
             default:
                 example = ""
@@ -199,6 +213,8 @@ class ip_view {
     }
     
     func populate_table6() -> [[String: String]] {
+        
+    
         let data = [
          [
           "subnet" : "2620:13d::",
@@ -416,6 +432,12 @@ class SubnetCalculator4
         return self.ipAddressCalculation(format: self.FORMAT_BINARY)
     }
     
+    public func getIPAddressInteger() -> Int
+    {
+        let ipString = self.getIPAddress()
+        return ip2long(ip_address: ipString)
+    }
+    
     /**
      Get network size
      */
@@ -501,6 +523,69 @@ class SubnetCalculator4
         ];
         return network_range_quads.joined(separator: ".")
     }
+    
+    
+    /**
+     Calculate the network address for the next network
+        The exact same code as calculating broadcast address, except I'm no longer subtracting one from each quad
+          - Returns: IP address as dotted quads
+     */
+    public func nextNetworkCalculation(format: String, separator: String = "") -> String
+    {
+//        let network_quads       = self.getNetworkPortionQuads()
+//        let number_ip_addresses = self.getNumberIPAddresses()
+//
+//        let network_range_quads = [
+//            String(format: self.FORMAT_QUADS, (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses) >> 24) & 0xFF)),
+//            String(format: self.FORMAT_QUADS, (network_quads[1] & (self.subnet_mask >> 16))+(((number_ip_addresses) >> 16) & 0xFF)),
+//            String(format: self.FORMAT_QUADS, (network_quads[2] & (self.subnet_mask >> 8))+(((number_ip_addresses) >> 8) & 0xFF)),
+//            String(format: self.FORMAT_QUADS, (network_quads[3] & (self.subnet_mask >> 0))+(((number_ip_addresses) >> 0) & 0xFF)),
+//        ];
+//        return network_range_quads.joined(separator: ".")
+        let broadcast_addr = self.getBroadcastAddress()
+        let broadcast_addr_int = ip2long(ip_address: broadcast_addr)
+        let next_network_int = broadcast_addr_int + 1
+        let next_network_string = long2ip(long: next_network_int)
+        return next_network_string
+    }
+    
+     
+    /**
+        Calculate the previous network address
+     
+     The exact same code as calculating network address, except I'm subtracting the number of host addresses too
+     
+     - Parameters:
+       - format: sprintf format to determine if decimal, hex or binary
+       - separator: implode separator for formatting quads vs hex and binary
+     */
+    
+    private func prevNetworkCalculation(format: String, separator: String = "") -> String
+    {
+//          var = String(format: format,   (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses - 1) >> 24)))
+//  let test = String(format: format, (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses - 1) >> 24) & 0xFF))
+
+//        let number_ip_addresses = getNumberIPAddresses()
+//        let network_quads = [
+//            String(format: format, (self.quads[0] & ((self.subnet_mask >> 24)) - (number_ip_addresses >> 24)) & 0xFF),
+//            String(format: format, (self.quads[1] & ((self.subnet_mask >> 16)) - (number_ip_addresses >> 16)) & 0xFF),
+//            String(format: format, (self.quads[2] & ((self.subnet_mask >> 8)) - (number_ip_addresses >> 8)) & 0xFF),
+//            String(format: format, (self.quads[3] & ((self.subnet_mask >> 0)) - (number_ip_addresses >> 0)) & 0xFF),
+//        ];
+////        NSLog("New network quads are: \(network_quads)")
+//        NSLog("Bitwise math for last bit is")
+//        NSLog(String(self.quads[1]))
+////        NSLog("\(self.quads[1]) & (\(self.subnet_mask) >> 16)) - ((\(number_ip_addresses) >> 24) & 0xFF)")
+//        return network_quads.joined(separator: separator)
+        
+        let network_addr = self.getNetworkPortion()
+        let network_addr_int = ip2long(ip_address: network_addr)
+        let prev_network_int = network_addr_int - self.getNumberIPAddresses()
+        let prev_network_string = long2ip(long: prev_network_int)
+        return prev_network_string
+        
+    }
+
     
     
     /**
@@ -592,6 +677,24 @@ class SubnetCalculator4
         }
         return self.maxHostCalculation(format: self.FORMAT_BINARY)
     }
+    
+    /**
+     Get next network IP address as dotted quads: xxx.xxx.xxx.xxx
+     */
+    public func getNextNetwork() -> String
+    {
+        return self.nextNetworkCalculation(format: self.FORMAT_QUADS, separator: ".")
+    }
+    
+    /**
+     Get next network IP address as dotted quads: xxx.xxx.xxx.xxx
+     */
+    public func getPrevNetwork() -> String
+    {
+        return self.prevNetworkCalculation(format: self.FORMAT_QUADS, separator: ".")
+    }
+    
+    
     
     /**
      Get subnet mask as dotted quads: xxx.xxx.xxx.xxx
@@ -839,6 +942,12 @@ class SubnetCalculator4
         return network_range_quads.joined(separator: separator)
     }
     
+    
+    
+
+    
+   
+    
     /**
      Validate IP address and network
      
@@ -869,13 +978,14 @@ class SubnetCalculator4
      The equivalent of `pow()` but it works with integers
      */
     private func intPow(base: Int, exp: Int) -> Int {
-        return Int(pow(Double(base),Double(exp)))
+        let result = pow(Double(base),Double(exp))
+        return Int(result)
     }
     
     
     
     /**
-     Converts a string containing an (IPv4) Internet Protocol dotted address into a proper address
+     Converts a string containing an (IPv4) Internet Protocol dotted address into a long integer
      
      Adapted from PHP's function [ip2long()](https://www.php.net/manual/en/function.long2ip.php).
      
@@ -885,12 +995,17 @@ class SubnetCalculator4
     private func ip2long (ip_address: String) -> Int {
 
         let quads = ip_address.components(separatedBy: ".").map { Int($0)!}
-        var i = 0
+//        var i = 3
+        
+        var quad_index = 3
+        var exp_index = 0
+        
         var long: Int = 0
-        while (i < 4 )
+        while (quad_index >= 0 )
         {
-            long += intPow(base:256, exp: i) * quads[i]
-            i += 1
+            long += intPow(base:256, exp: exp_index) * quads[quad_index]
+            quad_index -= 1
+            exp_index += 1
         }
         
         return long
@@ -924,7 +1039,7 @@ class SubnetCalculator4
             {
                 ip += "."
             }
-            i += 1
+            i -= 1
         }
         
         return ip

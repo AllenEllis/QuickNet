@@ -21,6 +21,7 @@ class ViewController: NSViewController
     @IBOutlet weak var host_broadcast: NSTextFieldCell!
     @IBOutlet weak var host_usable: NSTextField!
     @IBOutlet weak var host_condensed: NSTextFieldCell!
+    @IBOutlet weak var host_integer: NSTextFieldCell!
     
     
     @IBOutlet weak var cidr_notation: NSTextFieldCell!
@@ -112,18 +113,68 @@ class ViewController: NSViewController
     }
     
     func increaseMaskSize() {
+        let ip_obj = ip_view(ip_input: ip_input.stringValue)
+        
+        // determine the next highest prefix size
+        var new_size = ip_obj.network_size + 1
+        
+        if(ip_obj.detect_ipv_type() == "4" && new_size > 32)
+        {
+            new_size = 32 // don't allow IPv4 to go higher than a /32
+        }
+        
+        let new_ip = ip_obj.ip_addr_str
+        
+        let new_ip_input = "\(new_ip)/\(new_size)"
+        
+        ip_input.stringValue = new_ip_input
+        
         doCalc()
     }
     
     func decreaseMaskSize() {
+        let ip_obj = ip_view(ip_input: ip_input.stringValue)
+        
+        // determine the next lowest prefix size
+        var new_size = ip_obj.network_size - 1
+        
+        if(new_size < 0)
+        {
+            new_size = 0 // don't allow any address to go lower than a /0
+        }
+        
+        let new_ip = ip_obj.ip_addr_str
+        
+        let new_ip_input = "\(new_ip)/\(new_size)"
+        
+        ip_input.stringValue = new_ip_input
+        
         doCalc()
     }
     
     func goToNext() {
+        let ip_obj = ip_view(ip_input: ip_input.stringValue)
+        
+        // determine the next network input
+        let new_ip = ip_obj.next_network
+        let new_size = ip_obj.network_size
+        let new_ip_input = "\(new_ip)/\(new_size)"
+
+        ip_input.stringValue = new_ip_input
+        
         doCalc()
     }
     
     func goToPrevious() {
+        let ip_obj = ip_view(ip_input: ip_input.stringValue)
+        
+        // determine the next network input
+        let new_ip = ip_obj.prev_network
+        let new_size = ip_obj.network_size
+        let new_ip_input = "\(new_ip)/\(new_size)"
+
+        ip_input.stringValue = new_ip_input
+        
         doCalc()
     }
     
@@ -171,6 +222,7 @@ class ViewController: NSViewController
         host_last_host.stringValue = ip_obj.host_last_host
         host_broadcast.stringValue = ip_obj.host_broadcast
         host_usable.stringValue = String(ip_obj.host_usable_hosts)
+        host_integer.stringValue = String(ip_obj.host_integer)
         
         cidr_notation.stringValue = ip_obj.cidr_notation
         netmask.stringValue = ip_obj.netmask
