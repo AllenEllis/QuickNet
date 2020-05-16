@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  HelloWorld
+//  QuickNet
 //
 //  Created by Allen Ellis on 5/7/20.
 //  Copyright © 2020 Friendship Creative. All rights reserved.

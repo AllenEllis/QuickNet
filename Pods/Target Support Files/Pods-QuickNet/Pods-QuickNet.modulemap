@@ -1,0 +1,6 @@
+module Pods_QuickNet {
+  umbrella header "Pods-QuickNet-umbrella.h"
+
+  export *
+  module * { export * }
+}

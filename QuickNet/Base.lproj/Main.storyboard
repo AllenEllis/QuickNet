@@ -702,7 +702,7 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="HelloWorld" customModuleProvider="target"/>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="QuickNet" customModuleProvider="target"/>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -734,7 +734,7 @@
         <!--View Controller-->
         <scene sceneID="0ix-oM-rJs">
             <objects>
-                <viewController id="OUC-Xm-M8w" customClass="ViewController" customModule="HelloWorld" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="OUC-Xm-M8w" customClass="ViewController" customModule="QuickNet" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" autoresizesSubviews="NO" misplaced="YES" id="aFc-kY-PjM" userLabel="New Home">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="810"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -1253,7 +1253,7 @@ DQ
                                             <rect key="frame" x="-2" y="0.0" width="81" height="16"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="Integer value:" id="uVY-s9-dec">
                                                 <font key="font" metaFont="label" size="12"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="textColor" name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
@@ -1263,7 +1263,7 @@ DQ
                                             <rect key="frame" x="118" y="0.0" width="19" height="16"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="01" id="A50-DI-7b3">
                                                 <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="textColor" name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
@@ -1319,7 +1319,7 @@ DQ
         <!--IPv6-->
         <scene sceneID="Cyv-4r-RB0">
             <objects>
-                <viewController title="IPv6" id="59p-T2-JrZ" customClass="ViewController" customModule="HelloWorld" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="IPv6" id="59p-T2-JrZ" customClass="ViewController" customModule="QuickNet" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="aYB-ZR-Iy0">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="503"/>
                         <autoresizingMask key="autoresizingMask"/>

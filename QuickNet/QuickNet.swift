@@ -1,6 +1,6 @@
 //
-//  QuickDigit.swift
-//  HelloWorld
+//  QuickNet.swift
+//  QuickNet
 //
 //  Created by Allen Ellis on 5/8/20.
 //  Copyright © 2020 Friendship Creative. All rights reserved.
@@ -9,6 +9,7 @@
 import Foundation
 import Alamofire
 import SwiftyJSON
+import UInt128
 
 // comment so that Colab does not interpret `#if ...` as a comment
 #if canImport(PythonKit)
@@ -1055,6 +1056,736 @@ class SubnetCalculator4
 
 
 
+// MARK: SubnetCalculator6
+
+class SubnetCalculator6 {
+      /** IP address as compact, human readable format: 2001:db8:: */
+        var ip_address: String
+        
+        /** CIDR network size */
+        var network_size: Int
+        
+        /** Deprecated: Array of four elements containing the four quads of the IP address */
+        var quads = [Int]()
+        
+        /** Deprecated: Subnet mask in format used for subnet calculations */
+        var subnet_mask: Int
+        
+        /** Deprecated: Subnet report in blob format */
+        var report: String
+        
+        let FORMAT_QUADS  = "%d";
+        let FORMAT_HEX    = "%02X";
+        let FORMAT_BINARY = "%08b";
+        
+    
+    
+        
+        /**
+         Constructor -- Takes IP address and network size, validates inputs, and assigns class attributes.
+         
+         For example: 2001:db8::/32 would be `ip` = `2001:db8` and `network_size` = `32`
+         
+         - Parameters:
+           - ip_address: IP address in dotted quad notation
+           - network_size: CIDR network size
+           - report: Deprecated: Subnet report in blob format
+         */
+        
+        public init(ip_address: String, network_size: Int, report: String = "") {
+            
+            
+            self.ip_address = ip_address
+            self.network_size = network_size
+            self.quads = ip_address.components(separatedBy: ":").map { Int($0)!}
+            self.report = "todo"
+            self.subnet_mask = 0
+            
+//            self.validateInputs(ip_address: ip_address, network_size: network_size)
+//            self.subnet_mask = self.calculateSubnetMask(network_size: network_size)
+
+    //        self.report = report ?: SubnetReport()
+        }
+        
+        
+        // MARK: Public functions
+        
+        /**
+         Get IP address as human readable: 2001:db8::
+         */
+        public func getIPAddress() -> String
+        {
+            return self.ip_address
+        }
+        
+        /**
+         [Deprecated] Get IP address as array of quads: [xxx, xxx, xxx, xxx]
+         */
+        public func getIPAddressQuads() -> [Int]
+        {
+            return self.quads
+        }
+        
+        /**
+         [Deprecated] Get IP address as hexadecimal
+         */
+        public func getIPAddressHex() -> String
+        {
+            return self.ipAddressCalculation(format: self.FORMAT_HEX)
+        }
+
+        /**
+         [Deprecated] Get IP address as binary
+         */
+        public func getIPAddressBinary() -> String
+        {
+            return self.ipAddressCalculation(format: self.FORMAT_BINARY)
+        }
+        
+        public func getIPAddressInteger() -> Int
+        {
+            let ipString = self.getIPAddress()
+            return ip2long(ip_address: ipString)
+        }
+    
+        public func getIPAddressInteger128() -> UInt128
+        {
+            let ipString = self.getIPAddress()
+            return ip2int128(ip_address: ipString)
+        }
+        
+        /**
+         Get network size
+         */
+        public func getNetworkSize() -> Int
+        {
+            return self.network_size
+        }
+        
+        /**
+         Get the number of IP addresses in the network
+         */
+        public func getNumberIPAddresses() -> Int
+        {
+            return intPow(base: 2, exp: (32 - self.network_size))
+        }
+        
+        
+        /**
+         Get the number of addressable hosts in the network
+         */
+        
+        public func getNumberAddressableHosts() -> Int
+        {
+            if(self.network_size == 32) {
+                return 1
+            }
+            if(self.network_size == 31) {
+                return 2
+            }
+            
+            return (self.getNumberIPAddresses() - 2)
+        }
+        
+        
+        /**
+         Get range of IP addresses in the network
+         - Returns: Array containing start and end of IP address range. IP addresses are in dotted quad notation.
+         */
+        public func getIPAddressRange() -> [String]
+        {
+            return [self.getMinHost(),self.getMaxHost()]
+        }
+        
+        
+        /**
+         Calculate network portion for formatting
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         */
+        
+        private func networkCalculation(format: String, separator: String = "") -> String
+        {
+            let network_quads = [
+                String(format: format, self.quads[0] & (self.subnet_mask >> 24)),
+                String(format: format, self.quads[1] & (self.subnet_mask >> 16)),
+                String(format: format, self.quads[2] & (self.subnet_mask >> 8)),
+                String(format: format, self.quads[3] & (self.subnet_mask >> 0)),
+            ];
+            return network_quads.joined(separator: separator)
+        }
+        
+        
+        
+        
+        /**
+         Calculate the broadcast IP address
+         
+         - Returns: IP address as dotted quads
+         */
+        
+        public func getBroadcastAddress() -> String
+        {
+            let network_quads       = self.getNetworkPortionQuads()
+            let number_ip_addresses = self.getNumberIPAddresses()
+            
+            let network_range_quads = [
+                String(format: self.FORMAT_QUADS, (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses - 1) >> 24) & 0xFF)),
+                String(format: self.FORMAT_QUADS, (network_quads[1] & (self.subnet_mask >> 16))+(((number_ip_addresses - 1) >> 16) & 0xFF)),
+                String(format: self.FORMAT_QUADS, (network_quads[2] & (self.subnet_mask >> 8))+(((number_ip_addresses - 1) >> 8) & 0xFF)),
+                String(format: self.FORMAT_QUADS, (network_quads[3] & (self.subnet_mask >> 0))+(((number_ip_addresses - 1) >> 0) & 0xFF)),
+            ];
+            return network_range_quads.joined(separator: ".")
+        }
+        
+        
+        /**
+         Calculate the network address for the next network
+            The exact same code as calculating broadcast address, except I'm no longer subtracting one from each quad
+              - Returns: IP address as dotted quads
+         */
+        public func nextNetworkCalculation(format: String, separator: String = "") -> String
+        {
+    //        let network_quads       = self.getNetworkPortionQuads()
+    //        let number_ip_addresses = self.getNumberIPAddresses()
+    //
+    //        let network_range_quads = [
+    //            String(format: self.FORMAT_QUADS, (network_quads[0] & (self.subnet_mask >> 24))+(((number_ip_addresses) >> 24) & 0xFF)),
+    //            String(format: self.FORMAT_QUADS, (network_quads[1] & (self.subnet_mask >> 16))+(((number_ip_addresses) >> 16) & 0xFF)),
+    //            String(format: self.FORMAT_QUADS, (network_quads[2] & (self.subnet_mask >> 8))+(((number_ip_addresses) >> 8) & 0xFF)),
+    //            String(format: self.FORMAT_QUADS, (network_quads[3] & (self.subnet_mask >> 0))+(((number_ip_addresses) >> 0) & 0xFF)),
+    //        ];
+    //        return network_range_quads.joined(separator: ".")
+            let broadcast_addr = self.getBroadcastAddress()
+            let broadcast_addr_int = ip2long(ip_address: broadcast_addr)
+            var next_network_int = broadcast_addr_int + 1
+            
+            if(next_network_int > 4294967295){
+                next_network_int = 4294967295 // the highest possible IPv4 address
+            }
+            
+            let next_network_string = long2ip(long: next_network_int)
+            return next_network_string
+        }
+        
+         
+        /**
+            Calculate the previous network address
+         
+         The exact same code as calculating network address, except I'm subtracting the number of host addresses too
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         */
+        
+        private func prevNetworkCalculation(format: String, separator: String = "") -> String
+        {
+            
+            let network_addr = self.getNetworkPortion()
+            let network_addr_int = ip2long(ip_address: network_addr)
+            var prev_network_int = network_addr_int - self.getNumberIPAddresses()
+            
+            if(prev_network_int < 0) {
+                prev_network_int = 0
+            }
+            
+            let prev_network_string = long2ip(long: prev_network_int)
+            return prev_network_string
+            
+        }
+
+        
+        
+        /**
+         Get minimum host IP address as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getMinHost() -> String {
+            if(self.network_size == 32 || self.network_size == 31) {
+                return self.ip_address
+            }
+            return self.minHostCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        /**
+         Get minimum host IP address as array of quads: [xxx, xxx, xxx, xxx]
+         */
+        public func getMinHostQuads() -> [Int]
+        {
+            if(self.network_size == 32 || self.network_size == 31) {
+                return self.quads
+            }
+            let minHost = self.minHostCalculation(format: "%d", separator: ".")
+            return minHost.components(separatedBy: ".").map { Int($0)!}
+        }
+        
+        /**
+         Get minimum host IP address as hex
+         - Warning: Not yet complete
+         */
+        public func getMinHostHex() -> String
+        {
+            if(self.network_size == 32 || self.network_size == 31) {
+                return "0" // todo wtf
+            }
+            return self.minHostCalculation(format: self.FORMAT_HEX)
+        }
+        
+        /**
+         Get minimum host IP address as binary
+         - Warning: Not yet complete
+         */
+        public func getMinHostBinary() -> String {
+            return "0" // todo
+        }
+        
+        
+        /**
+         Get maximum host IP address as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getMaxHost() -> String
+        {
+            if (self.network_size == 32 || self.network_size == 31) {
+                return self.ip_address
+            }
+            return self.maxHostCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        /**
+         Get maximum host IP address as array of quads: [xxx, xxx, xxx, xxx]
+         */
+        public func getMaxHostQuads() -> [Int]
+        {
+            if (self.network_size == 32 || self.network_size == 31) {
+                return self.quads
+            }
+            let maxHost = self.maxHostCalculation(format: self.FORMAT_QUADS, separator: ".")
+            return maxHost.components(separatedBy: ".").map { Int($0)!}
+        }
+        
+        /**
+         Get maximum host IP address as hex
+         */
+        public func getMaxHostHex() -> String
+        {
+            if (self.network_size == 32 || self.network_size == 31) {
+                return "0"
+                // todo
+            }
+            return self.maxHostCalculation(format: self.FORMAT_HEX)
+        }
+        
+        /**
+         Get maximum host IP address as binary
+         */
+        public func getMaxHostBinary() -> String
+        {
+            if (self.network_size == 32 || self.network_size == 31) {
+                return "0"
+                // todo
+            }
+            return self.maxHostCalculation(format: self.FORMAT_BINARY)
+        }
+        
+        /**
+         Get next network IP address as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getNextNetwork() -> String
+        {
+            return self.nextNetworkCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        /**
+         Get next network IP address as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getPrevNetwork() -> String
+        {
+            return self.prevNetworkCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        
+        
+        /**
+         Get subnet mask as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getSubnetMask() -> String
+        {
+            return self.subnetCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        /**
+         Get subnet mask as array of quads: [xxx, xxx, xxx, xxx]
+         */
+        public func getSubnetMaskQuads() -> [Int]
+        {
+            let subnetMask = self.subnetCalculation(format: self.FORMAT_QUADS, separator: ".")
+            return subnetMask.components(separatedBy: ".").map { Int($0)!}
+        }
+        
+        /**
+         Get subnet mask as binary
+         */
+        public func getSubnetMaskBinary() -> String
+        {
+            return self.subnetCalculation(format: self.FORMAT_BINARY)
+        }
+        
+        /**
+         Get network portion of IP address as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getNetworkPortion() -> String
+        {
+            return self.networkCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        /**
+         Gets network portion of IP address as array of quads: [xxx, xxx, xxx, xxx]
+         */
+        public func getNetworkPortionQuads() -> [Int]
+        {
+            let networkPortion = self.networkCalculation(format: self.FORMAT_QUADS, separator: ".")
+            return networkPortion.components(separatedBy: ".").map { Int($0)!}
+        }
+        
+        /**
+         Get network portion of IP address as hexadecimal
+         */
+        public func getNetworkPortionHex() -> String
+        {
+            return self.networkCalculation(format: self.FORMAT_HEX)
+        }
+        
+        /**
+         Get network portion of IP address as binary
+         */
+        public func getNetworkPortionBinary() -> String
+        {
+            return self.networkCalculation(format: self.FORMAT_BINARY)
+        }
+        
+        /**
+         Get host portion of IP address as dotted quads: xxx.xxx.xxx.xxx
+         */
+        public func getHostPortion() -> String
+        {
+            return self.hostCalculation(format: self.FORMAT_QUADS, separator: ".")
+        }
+        
+        /**
+         Get host portion as array of quads: [xxx, xxx, xxx, xxx]
+         */
+        public func getHostPortionQuads() -> [Int]
+        {
+            let hostPortion = self.hostCalculation(format: self.FORMAT_QUADS, separator: ".")
+            return hostPortion.components(separatedBy: ".").map { Int($0)!}
+        }
+        
+        /**
+         Get host portion of IP address as hexadecimal
+         */
+        public func getHostPortionHex() -> String
+        {
+
+            return self.hostCalculation(format: self.FORMAT_HEX)
+        }
+        
+        /**
+         Get host portion of IP address as binary
+         */
+        public func getHostPortionBinary() -> String
+        {
+            return self.hostCalculation(format: self.FORMAT_BINARY)
+        }
+        
+        /**
+         Get all host IP addresses.
+         
+         Removes broadcast and netork address if they exist.
+         */
+        
+        public func getAllIPAddresses() -> [String]
+        {
+            let start_ip = self.getIPAddressRangeAsInts()[0]
+            let end_ip = self.getIPAddressRangeAsInts()[1]
+            
+            var output = [String]()
+            var ip = start_ip
+            while ip <= end_ip
+            {
+                output.append(long2ip(long: ip))
+                ip += 1
+            }
+            return output
+        }
+        
+        /**
+         Is the IP address in the subnet?
+         */
+        public func isIPAddressInSubnet(ip_address_string: String) -> Bool {
+            let ip_address = ip2long(ip_address: ip_address_string)
+            let start_ip = self.getIPAddressRangeAsInts()[0]
+            let end_ip = self.getIPAddressRangeAsInts()[1]
+            
+            if(ip_address >= start_ip && ip_address <= end_ip)
+            {
+                return true
+            }
+            else
+            {
+                return false
+            }
+        }
+        
+        
+        /**
+         Get subnet calculations as an associated array
+         */
+        public func getSubnetArrayReport() -> String
+        {
+            return "Todo - subnet array report"
+        }
+        
+
+        // MARK: Private Functions
+        
+        /**
+         Calculate subnet mask
+         */
+        private func calculateSubnetMask(network_size: Int) -> Int
+        {
+            return 0xFFFFFFFF << (32 - network_size)
+        }
+        
+        /**
+         Calculate IP address for formatting
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         
+         - Returns: Formatted IP address
+         */
+        private func ipAddressCalculation(format: String, separator: String = "") -> String
+        {
+            return "0.0.0.0"
+        }
+        
+        
+        /**
+         Subnet calculation
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         */
+        private func subnetCalculation(format: String, separator: String = "") -> String
+        {
+            let mask_quads = [
+                String(format: format, (self.subnet_mask >> 24) & 0xFF),
+                String(format: format, (self.subnet_mask >> 16) & 0xFF),
+                String(format: format, (self.subnet_mask >> 8) & 0xFF),
+                String(format: format, (self.subnet_mask >> 0) & 0xFF)
+            ]
+            
+            return mask_quads.joined(separator: separator)
+        }
+        
+        /**
+         Calculate host portion for formatting
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         */
+        
+        private func hostCalculation(format: String, separator: String = "") -> String
+        {
+            return "todo - host calculation" // (it's identical to subnet Calc basically)
+        }
+        
+        
+        
+        /**
+         Calculate min portion for formatting
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         */
+        
+        private func minHostCalculation(format: String, separator: String = "") -> String
+        {
+            let network_quads = [
+                String(format: format, self.quads[0] & (self.subnet_mask >> 24)),
+                String(format: format, self.quads[1] & (self.subnet_mask >> 16)),
+                String(format: format, self.quads[2] & (self.subnet_mask >> 8)),
+                String(format: format, (self.quads[3] & (self.subnet_mask >> 0)) + 1),
+            ]
+            return network_quads.joined(separator: separator)
+        }
+        
+        
+        /**
+         Calculate max portion for formatting
+         
+         - Parameters:
+           - format: sprintf format to determine if decimal, hex or binary
+           - separator: implode separator for formatting quads vs hex and binary
+         */
+        
+        private func maxHostCalculation(format: String, separator: String = "") -> String
+        {
+            let network_quads = self.getNetworkPortionQuads()
+            let number_ip_addresses = self.getNumberIPAddresses()
+            
+            let network_range_quads = [
+                String(format: format, (network_quads[0] & (self.subnet_mask >> 24)) + (((number_ip_addresses - 1) >> 24) & 0xFF)),
+                
+                String(format: format, (network_quads[1] & (self.subnet_mask >> 16)) + (((number_ip_addresses - 1) >> 16) & 0xFF)),
+                
+                String(format: format, (network_quads[2] & (self.subnet_mask >> 8)) + (((number_ip_addresses - 1) >> 8) & 0xFF)),
+                
+                String(format: format, (network_quads[3] & (self.subnet_mask >> 0)) + (((number_ip_addresses - 1) >> 0) & 0xFE)),
+
+            ]
+            return network_range_quads.joined(separator: separator)
+        }
+        
+        
+        
+
+        
+       
+        
+        /**
+         Validate IP address and network
+         
+         - Parameters:
+           - ip_address: IP address is dotted quads format
+           - network_size: Network size
+         */
+        
+        private func validateInputs(ip_address: String, network_size: Int)
+        {
+            // todo -- throw errors if IPs are not valid
+        }
+        
+        
+        /**
+         Get the start and end of the IP address range as ints
+         
+          - Returns: Array [start IP, end IP]
+         */
+
+        private func getIPAddressRangeAsInts() -> [Int]
+        {
+            return [0,1] // todo
+        }
+           
+        
+        /**
+         The equivalent of `pow()` but it works with integers
+         */
+        private func intPow(base: Int, exp: Int) -> Int {
+            let result = pow(Double(base),Double(exp))
+            return Int(result)
+        }
+        
+        
+        
+        /**
+         Converts a string containing an (IPv4) Internet Protocol dotted address into a long integer
+         
+         Adapted from PHP's function [ip2long()](https://www.php.net/manual/en/function.long2ip.php).
+         
+         - Parameters:
+           - ip_address: IP address in string format
+         */
+        private func ip2long (ip_address: String) -> Int {
+
+            let quads = ip_address.components(separatedBy: ".").map { Int($0)!}
+    //        var i = 3
+            
+            var quad_index = 3
+            var exp_index = 0
+            
+            var long: Int = 0
+            while (quad_index >= 0 )
+            {
+                long += intPow(base:256, exp: exp_index) * quads[quad_index]
+                quad_index -= 1
+                exp_index += 1
+            }
+            
+            return long
+        }
+    
+    
+        
+        /**
+         Converts a string containing an (IPv6) Internet Protocol dotted address into a 128-bit integer
+         
+         Adapted from PHP's function [ip2long()](https://www.php.net/manual/en/function.long2ip.php).
+         
+         - Parameters:
+           - ip_address: IP address in string format
+         */
+        private func ip2int128 (ip_address: String) -> UInt128 {
+
+            let quads = ip_address.components(separatedBy: ".").map { Int($0)!}
+    //        var i = 3
+            
+            var quad_index = 3
+            var exp_index = 0
+            
+            var long: UInt128 = 0
+            while (quad_index >= 0 )
+            {
+//                long += intPow(base:256, exp: exp_index) * quads[quad_index]
+                quad_index -= 1
+                exp_index += 1
+            }
+            
+            return long
+        }
+        
+        
+        
+        /**
+         Converts an long integer address into a string in (IPv4) Internet standard dotted format.
+         
+         Adapted from PHP's function [long2ip()](https://www.php.net/manual/en/function.long2ip.php).
+         
+         - Parameters:
+           - long: IP address in integer format
+         */
+        private func long2ip (long: Int) -> String {
+            // valid range: 0.0.0.0 -> 255.255.255.255
+            var long = long
+            if (long < 0 || long > 4294967295)
+            {
+                return "Error";
+                // todo throw error?
+            }
+            var ip = ""
+            var i = 3
+            while (i >= 0 )
+            {
+                ip += String(long / intPow(base:256, exp: i))
+                long -= (long / intPow(base: 256, exp: i)) * intPow(base:256, exp: i)
+                if (i > 0)
+                {
+                    ip += "."
+                }
+                i -= 1
+            }
+            
+            return ip
+        }
+        
+}
 
 
 
@@ -1210,3 +1941,5 @@ class ip4_old: ip_view {
     }*/
     
 }
+
+
