@@ -743,7 +743,7 @@
                                 <rect key="frame" x="20" y="762" width="460" height="28"/>
                                 <beginningViews>
                                     <textField toolTip="Enter an IP address and network mask. Examples: 10.0.0.1/24 or 2001:db8::/32" verticalHuggingPriority="750" misplaced="YES" allowsExpansionToolTips="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0VO-Mb-Xdx">
-                                        <rect key="frame" x="0.0" y="3" width="285" height="22"/>
+                                        <rect key="frame" x="0.0" y="3" width="205" height="22"/>
                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" borderStyle="bezel" title="10.10.30.15/24" placeholderString="10.0.0.1/24" usesSingleLineMode="YES" bezelStyle="round" id="10p-t9-Zwh">
                                             <font key="font" metaFont="system" size="18"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -757,7 +757,7 @@
                                 </beginningViews>
                                 <endViews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cuf-gX-prb">
-                                        <rect key="frame" x="286" y="-3" width="58" height="32"/>
+                                        <rect key="frame" x="206" y="-3" width="58" height="32"/>
                                         <buttonCell key="cell" type="push" title="Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wx5-TK-IRk">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -770,8 +770,8 @@ DQ
                                             <outlet property="nextKeyView" destination="UBK-9w-XiY" id="EVB-q5-mcb"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" id="UBK-9w-XiY" userLabel="Previous">
-                                        <rect key="frame" x="339" y="-3" width="45" height="32"/>
+                                    <button toolTip="Previous network" verticalHuggingPriority="750" allowsExpansionToolTips="YES" id="UBK-9w-XiY" userLabel="Previous">
+                                        <rect key="frame" x="259" y="-3" width="45" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSGoLeftTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GaM-lk-BJF">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -784,8 +784,8 @@ DQ
                                             <outlet property="nextKeyView" destination="ftI-ez-L5m" id="2S1-wB-tnD"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" id="ftI-ez-L5m" userLabel="Next">
-                                        <rect key="frame" x="379" y="-3" width="45" height="32"/>
+                                    <button toolTip="Next network" verticalHuggingPriority="750" id="ftI-ez-L5m" userLabel="Next">
+                                        <rect key="frame" x="299" y="-3" width="45" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSGoRightTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="YaV-zn-6wc">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -798,7 +798,35 @@ DQ
                                             <outlet property="nextKeyView" destination="aV2-Dv-dEI" id="u7c-Vc-RDW"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" id="aV2-Dv-dEI" userLabel="Next">
+                                    <button toolTip="Shrink network" verticalHuggingPriority="750" id="1F5-ZX-eDB" userLabel="Shrink">
+                                        <rect key="frame" x="339" y="-3" width="45" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0a5-cU-wtx">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                            <string key="keyEquivalent"></string>
+                                            <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="shrinkButtonClicked:" target="OUC-Xm-M8w" id="wbB-iu-BSn"/>
+                                            <outlet property="nextKeyView" destination="aV2-Dv-dEI" id="qdX-4I-I2M"/>
+                                        </connections>
+                                    </button>
+                                    <button toolTip="Grow network" verticalHuggingPriority="750" id="56C-lH-DSO" userLabel="Grow">
+                                        <rect key="frame" x="379" y="-3" width="45" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSTouchBarGoUpTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4nb-7h-9Cp">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                            <string key="keyEquivalent"></string>
+                                            <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="growButtonClicked:" target="OUC-Xm-M8w" id="P0P-fm-Hzp"/>
+                                            <outlet property="nextKeyView" destination="aV2-Dv-dEI" id="Urn-E6-baR"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" id="aV2-Dv-dEI">
                                         <rect key="frame" x="419" y="-3" width="47" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSShareTemplate" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xwo-dW-aca">
@@ -822,9 +850,13 @@ DQ
                                     <integer value="1000"/>
                                     <real value="494"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
                                     <real value="138"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
@@ -2456,5 +2488,7 @@ DQ
         <image name="NSGoLeftTemplate" width="9" height="12"/>
         <image name="NSGoRightTemplate" width="9" height="12"/>
         <image name="NSShareTemplate" width="11" height="16"/>
+        <image name="NSTouchBarGoDownTemplate" width="16" height="30"/>
+        <image name="NSTouchBarGoUpTemplate" width="16" height="30"/>
     </resources>
 </document>

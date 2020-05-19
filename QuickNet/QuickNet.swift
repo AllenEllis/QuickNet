@@ -34,7 +34,7 @@ class ip_view {
     var host_broadcast: String
     var host_usable_hosts: Int
     var host_condensed: String
-    var host_integer: Int
+    var host_integer: String    // It's not an int because it could be a 128-bit integer. Maybe convert to 128 bit int at some point but I don't know that I need to
     
     var cidr_notation: String
     var netmask: String
@@ -61,7 +61,7 @@ class ip_view {
         self.host_condensed = "0.0.0.0"
         self.ipv_type = "0"
         self.subnet_data = []
-        self.host_integer = 0
+        self.host_integer = "0"
         
         self.cidr_notation = "/0"
         self.netmask = "0.0.0.0"
@@ -128,7 +128,7 @@ class ip_view {
             self.netbox_status = "hello world"
             self.next_network = ip4.getNextNetwork()
             self.prev_network = ip4.getPrevNetwork()
-            self.host_integer = ip4.getIPAddressInteger()
+            self.host_integer = String(ip4.getIPAddressInteger())
             
             self.getNetboxStatus()
             self.subnet_data = populate_table4()
@@ -137,9 +137,28 @@ class ip_view {
         
         if(self.ipv_type == "6")
         {
-            self.host_first_host = "aaaa"
-            self.host_last_host = "ffff"
-            self.host_condensed = "af"
+            
+            // separate the mask from the address
+            let ip_components = ip_input.components(separatedBy: "/")
+            self.ip_addr_str = ip_components[0]
+        
+            // If they supplied a network size, use it. If not, default to 128.
+            if(ip_components.count == 2)
+            {
+                self.network_size = Int(ip_components[1]) ?? 128
+            }
+            else
+            {
+                self.network_size = 128
+            }
+            
+            let ip6 = SubnetCalc6(ip_address: self.ip_addr_str, network_size: network_size)
+            self.host_first_host = "tbd"
+            self.host_last_host = ip6.getIPAddressStringShort()
+            self.host_condensed = ip6.getIPAddressStringLong()
+            self.host_integer = String(ip6.getIPAddressInt())
+            
+            self.cidr_notation = "/" + String(ip6.getNetworkSize())
             self.subnet_data = populate_table6()
         }
 
@@ -1054,6 +1073,98 @@ class SubnetCalculator4
     
 }
 
+
+// MARK: SubnetCalc6
+
+class SubnetCalc6 {
+    /** IP address as compact, human readable format: 2001:db8:: */
+    var ip_address: String
+
+    /** CIDR network size */
+    var network_size: Int
+    
+    let FORMAT_QUADS  = "%d";
+    let FORMAT_HEX    = "%02X";
+    let FORMAT_BINARY = "%08b";
+    
+    public init(ip_address: String, network_size: Int) {
+        self.ip_address = ip_address
+        self.network_size = network_size
+    }
+    
+    /**
+     Get network size
+     */
+    public func getNetworkSize() -> Int
+    {
+        return self.network_size
+    }
+    
+    /**
+     Get IP address as short string: 2001:db8::
+     */
+    public func getIPAddressStringShort() -> String
+    {
+        return ipLong2Short(ip_address_long: self.ip_address)
+    }
+    
+    /**
+     Get IP address as long string: 2001:0db8:0000:0000:0000:0000:0000:0000
+     */
+    public func getIPAddressStringLong() -> String
+    {
+        return ipShort2Long(ip_address_short: self.ip_address)
+    }
+    
+    /**
+     Get IP address as 128-bit integer
+     */
+    public func getIPAddressInt() -> UInt128
+    {
+        let ip_address_short = self.getIPAddressStringShort()
+        return ip2int(ip_address: ip_address_short)
+    }
+    
+    /**
+     Converts a short IP address string (2001:db8::) to long string (2001:0db8:0000:0000:0000:0000:0000:0000)
+     */
+    private func ipShort2Long(ip_address_short: String) -> String {
+        var ip_address_long = "Long address gets returned here"
+        // do the math
+        return ip_address_long
+    }
+    
+    /**
+     Converts a short IP address string (2001:db8::) to long string (2001:0db8:0000:0000:0000:0000:0000:0000)
+     */
+    private func ipLong2Short(ip_address_long: String) -> String {
+        var ip_address_short = "Short address gets returned here"
+        // do the math
+        return ip_address_short
+    }
+    
+    /**
+     Converts an IP address string (either long or short) to a 128 bit integer
+     */
+    private func ip2int(ip_address: String) -> UInt128 {
+        var ip_int: UInt128
+        ip_int = 0
+        let ip_address_long = ipShort2Long(ip_address_short: ip_address)
+        // do the math
+        return ip_int
+    }
+    
+    /**
+     Converts a 128 bit integer to a long IP address string
+     */
+    private func int2ip(ip_int: UInt128) -> String {
+        var ip_address_long: String
+        ip_address_long = "0::0"
+        // do the math
+        return ip_address_long
+    }
+
+}
 
 
 // MARK: SubnetCalculator6

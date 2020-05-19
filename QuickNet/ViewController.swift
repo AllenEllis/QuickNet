@@ -74,6 +74,14 @@ class ViewController: NSViewController
         goToNext()
     }
     
+    @IBAction func shrinkButtonClicked(_ sender: Any) {
+        decreaseMaskSize()
+    }
+    
+    @IBAction func growButtonClicked(_ sender: Any) {
+        increaseMaskSize()
+    }
+    
     @IBAction func shareButtonClicked(_ sender: NSButton) {
         let text = ip_input.stringValue
         let sharingPicker = NSSharingServicePicker(items: [text])
@@ -255,6 +263,11 @@ class ViewController: NSViewController
         host_first_host.stringValue = ip_obj.host_first_host
         host_last_host.stringValue = ip_obj.host_last_host
         host_condensed.stringValue = ip_obj.host_condensed
+
+        host_integer.stringValue = String(ip_obj.host_integer)
+        cidr_notation.stringValue = ip_obj.cidr_notation
+
+        
         tableView.reloadData()
         
  
