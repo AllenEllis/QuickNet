@@ -184,14 +184,16 @@ class IP6 {
 //            "void": false
 //        ]
         var hextet = Hextet()
+        var _hex_str = hex_str
         
         if (hex_str == "") {
-            hextet.void = true;
+            hextet.void = true
+            _hex_str = "0"
         }
 
-        hextet.int = Int(hex_str) ?? 0
-        hextet.hex = String(format:"%x",Int(hex_str) ?? 0)
-        hextet.hex_long = String(format:"%04x", Int(hex_str) ?? 0)
+        hextet.int = Int(UInt(_hex_str, radix: 16)!) // stack overflow said I needed to use `UInt` https://stackoverflow.com/a/46094575/7560156
+        hextet.hex = String(format:"%x", hextet.int)
+        hextet.hex_long = String(format:"%04x", hextet.int)
         return hextet;
     }
     
@@ -282,8 +284,8 @@ class IP6 {
     private func convertIPLongArrayToIPShortArray(ip_long_array: [Hextet]) -> [Hextet]
     {
         var ip_short_array = [Hextet]()
-        var void_start: Int?? = nil
-        var void_end: Int?? = nil
+        var void_start = 0
+        var void_end = 0
         var void_started = false
 
         let void = self.calculateVoid(ip_array:ip_long_array)
@@ -307,7 +309,7 @@ class IP6 {
                 // We are not in the void. Remove leading zeroes and save
                 let ip_hex = String(format: "%x", ip.int)
 //                let ip_short = String(format: "%d", ip_hex)
-                ip_short_array.insert(self.calculateHextetVars(hex_str: ip_hex), at: index)
+                ip_short_array.append(self.calculateHextetVars(hex_str: ip_hex)) // , at: index
             }
         }
 
@@ -319,8 +321,8 @@ class IP6 {
     private func calculateVoid(ip_array: [Hextet]) -> VoidCandidate
     {
         var void_candidates = [VoidCandidate]()
-        var void_beginning: Int?? = nil // null
-        var void_size: Int?? = nil // null
+        var void_beginning = 0 // null
+        var void_size = 0 // null
         var in_void = false
 
         for (index, hextet) in ip_array.enumerated() {
@@ -330,8 +332,8 @@ class IP6 {
                     void_candidates.append(VoidCandidate(beginning: void_beginning, size: void_size))
                 }
                 in_void = false;
-                void_beginning = nil // null
-                void_size = nil // null
+                void_beginning = 0 // null
+                void_size = 0 // null
                 continue
             } else {
                 if (in_void == false) {
@@ -357,8 +359,7 @@ class IP6 {
         // Now, analyze all candidates to determine which one should become designated as the void
         for candidate in void_candidates {
             if (candidate.size >= best_size) {
-                let best_candidate = candidate
-                let best_size = candidate.size
+                best_candidate = candidate
             }
         }
 
