@@ -55,8 +55,94 @@ class IP6 {
     }
     
     private func calculateFirstLastHosts(){
-            // todo
+        let addr_given_str = self.ip_long_string
+        let prefixlen = self.network_size
+
+        // Remove the `:` symbols from the IP address
+        let addr_given_hex = addr_given_str.replacingOccurrences(of: ":", with: "")
+
+        // Calculate the number of 'flexible' bits
+        var flexbits = 128 - prefixlen
+
+        // Build the hexadecimal strings of the first and last addresses
+        var addr_hex_first = addr_given_hex
+        var addr_hex_last = addr_given_hex
+
+        // We start at the end of the string (which is always 32 characters long)
+        var pos = 31
+        while (flexbits > 0) {
+          // Get the character at this position
+            let orig_start = addr_hex_first.index(addr_hex_first.startIndex, offsetBy: pos)
+            let orig_end   = addr_hex_first.index(addr_hex_first.endIndex,   offsetBy: pos-1)
+            let orig_range = orig_start..<orig_end
+            let orig_char  = addr_hex_first[orig_range]
+            let orig_first = orig_char
+            let orig_last = orig_char
+
+          // Convert it to an integer
+            let origval_first = Int(UInt(orig_first, radix: 16)!)
+            let origval_last = Int(UInt(orig_last, radix: 16)!)
+
+          // First address: calculate the subnet mask. min() prevents the comparison from being negative
+            let mask = 0xf << (min(4, flexbits))
+
+          // AND the original against its mask
+            let new_val_first = origval_first & mask
+
+          // Last address: OR it with (2^flexbits)-1, with flexbits limited to 4 at a time
+            let base = Double(2)
+            let exp = Double(min(4, flexbits) - 1)
+            let new_val_last = origval_last | Int(pow(base,exp) )
+
+          // Convert them back to hexadecimal characters
+            let new_first = Character(String(format: "%x", new_val_first))
+            let new_last = Character(String(format: "%x", new_val_last))
+
+          // And put those character back in their strings
+            addr_hex_first = strReplace(myString: addr_hex_first, pos, new_first)
+            addr_hex_last  = strReplace(myString: addr_hex_last,  pos, new_last)
+//          addr_hex_first = substr_replace(addr_hex_first, new_first, pos, 1)
+//          addr_hex_last = substr_replace(addr_hex_last, new_last, pos, 1)
+
+          // We processed one nibble, move to previous position
+          flexbits -= 4
+          pos -= 1
+        }
+
+        // Report to user
+        self.first_host = addr_hex_first
+        self.last_host = addr_hex_last
+        
+        return
+        
+//        // Convert the hexadecimal strings to a binary string
+//        var addr_bin_first = Int32(String(Int(addr_hex_first, radix: 16)!, radix: 2))
+//        var addr_bin_last = Int32(String(Int(addr_hex_last, radix: 16)!, radix: 2))
+//
+//        // And create an IPv6 address from the binary string
+//        var addr_str_first = inet_ntop(addr_bin_first)
+//        var addr_str_last = inet_ntop(addr_bin_last)
+//
+//        // Make the strings longer
+//        addr_str_first = self.convertIPShortStringToLongString(addr_str_first)
+//        addr_str_last = self.convertIPShortStringToLongString(addr_str_last)
+//
+//        // Report to user
+//        self.first_host = addr_str_first
+//        self.last_host = addr_str_last
     }
+    
+    /**
+     Replace characters in a string based on their index
+        https://stackoverflow.com/a/24789950/7560156
+     */
+    private func strReplace(myString: String, _ index: Int, _ newChar: Character) -> String {
+        var chars = Array(myString)     // gets an array of characters
+        chars[index] = newChar
+        let modifiedString = String(chars)
+        return modifiedString
+    }
+
     
     
     /**
@@ -109,9 +195,9 @@ class IP6 {
     private func convertToIPLongArray(_ip_short_array: [Hextet]) -> [Hextet] {
         var ip_short_array = _ip_short_array // have to do this so we can modify the value
         var ip_long_array = [Hextet]()
-        var void_inserted = false;
+        var void_inserted = false
         var void_array = [String]()
-        let void_size = self.calculateVoidSize(ip_short_array: ip_short_array);
+        let void_size = self.calculateVoidSize(ip_short_array: ip_short_array)
        
         
         for _ in 0 ..< void_size {
@@ -123,7 +209,7 @@ class IP6 {
             if (hextet.void == true) {
                 if (void_inserted == true) {
                     // If the :: is at the start or end, two voids will be in the array. So only proceed if we haven't inserted a void yet
-                    ip_short_array.remove(at: index);
+                    ip_short_array.remove(at: index)
                 } else {
                     // Insert the void
                     for _ in void_array {
@@ -134,7 +220,7 @@ class IP6 {
                             void: false
                         ))
                     }
-                    void_inserted = true;
+                    void_inserted = true
                 }
             } else {
                 ip_long_array.append(hextet)
@@ -146,7 +232,7 @@ class IP6 {
             print("Error - long array ended up with not exactly 8 hextets")
         }
 
-        return ip_long_array;
+        return ip_long_array
     }
     
     /**
@@ -155,20 +241,20 @@ class IP6 {
     private func calculateVoidSize(ip_short_array: [Hextet]) -> Int
     {
         // determine if there is even a void
-        var void = false;
-        var void_count = 0;
+        var void = false
+        var void_count = 0
         for hextet in ip_short_array {
             if (hextet.void == true) {
-                void = true;
-                void_count += 1;
+                void = true
+                void_count += 1
             }
         }
         if (void == false) {
-            return 0;
+            return 0
         }
 
-        let void_size = 8 - ip_short_array.count + void_count; // add back in any array entries that were the void
-        return void_size;
+        let void_size = 8 - ip_short_array.count + void_count // add back in any array entries that were the void
+        return void_size
     }
     
     /**
@@ -194,7 +280,7 @@ class IP6 {
         hextet.int = Int(UInt(_hex_str, radix: 16)!) // stack overflow said I needed to use `UInt` https://stackoverflow.com/a/46094575/7560156
         hextet.hex = String(format:"%x", hextet.int)
         hextet.hex_long = String(format:"%04x", hextet.int)
-        return hextet;
+        return hextet
     }
     
     /**
@@ -273,7 +359,7 @@ class IP6 {
                     ip_short_string
                 )
             )
-        );
+        )
     }
 
     
@@ -301,14 +387,22 @@ class IP6 {
                 if (void_started == false) {
                     // we are in the start of void
                     ip_short_array.append(self.calculateHextetVars(hex_str: ""))
+                    
+                    // if this was the first  hextet, add one more (so we get a double `::`)
+                    if (index == 0 || index == 7) {
+                        ip_short_array.append(self.calculateHextetVars(hex_str: ""))
+                    }
                     void_started = true
                 } else {
-                    continue; // we are still in the void, skip until we are no longer in the void
+                    // if this was the last hextet, add one more (so we get a double `::`)
+                    if (index == 7) {
+                        ip_short_array.append(self.calculateHextetVars(hex_str: ""))
+                    }
+                    continue // we are still in the void, skip until we are no longer in the void
                 }
             } else {
                 // We are not in the void. Remove leading zeroes and save
                 let ip_hex = String(format: "%x", ip.int)
-//                let ip_short = String(format: "%d", ip_hex)
                 ip_short_array.append(self.calculateHextetVars(hex_str: ip_hex)) // , at: index
             }
         }
@@ -331,16 +425,16 @@ class IP6 {
                     // We were already in a void previously? If so, close it
                     void_candidates.append(VoidCandidate(beginning: void_beginning, size: void_size))
                 }
-                in_void = false;
+                in_void = false
                 void_beginning = 0 // null
                 void_size = 0 // null
                 continue
             } else {
                 if (in_void == false) {
                     // start a new void candidate
-                    in_void = true;
-                    void_beginning = index;
-                    void_size = 1;
+                    in_void = true
+                    void_beginning = index
+                    void_size = 1
                 } else {
                     // we already had a void candidate going, so extend it
                     void_size += 1

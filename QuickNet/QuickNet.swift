@@ -154,8 +154,8 @@ class ip_view {
             
             let ip6 = IP6(ip_address_mixed: self.ip_addr_str, network_size: self.network_size)
             
-            self.host_first_host = "tbd"
-            self.host_last_host = "tbd"
+            self.host_first_host = ip6.first_host
+            self.host_last_host = ip6.last_host
             self.host_condensed = ip6.ip_short_string
             self.host_integer = ip6.ip_long_string
             
