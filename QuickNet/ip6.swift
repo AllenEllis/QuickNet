@@ -1,5 +1,5 @@
 //
-//  ip6.swift
+//  IP6.swift
 //  QuickNet
 //
 //  Created by Allen Ellis on 5/19/20.
@@ -28,7 +28,7 @@ import UInt128
   - last_host: The last ip_address in the network
  */
 
-class ip6 {
+class IP6 {
 
     var ip_mixed_string: String
     var ip_long_string: String
@@ -66,7 +66,7 @@ class ip6 {
      */
     public func getIPLongFromShort(ip_short_string: String) -> String {
         let ip_short_array = self.convertToIPShortArray(ip_string: ip_short_string)
-        let ip_long_array = self.convertToIPLongArray(ip_short_array: ip_short_array)
+        let ip_long_array = self.convertToIPLongArray(_ip_short_array: ip_short_array)
         let ip_long_string = self.convertToIPLongString(ip_long_array: ip_long_array)
         
         return ip_long_string
@@ -75,10 +75,10 @@ class ip6 {
     /**
      Takes an IP long array and reformats it as a long string
      */
-    private func convertToIPLongString(ip_long_array: [[String:String]]) -> String {
+    private func convertToIPLongString(ip_long_array: [Hextet]) -> String {
             var string = ""
-            for (index, ip) in ip_long_array.enumerated() {
-                string.append(ip["hex_long"]!)
+            for (index, hextet) in ip_long_array.enumerated() {
+                string.append(hextet.hex_long)
                 
                 // If we aren't on the last entry
                 if (index != ip_long_array.count - 1) {
@@ -97,7 +97,7 @@ class ip6 {
         let temp_array = ip_string.components(separatedBy: ":")
         
         for hextet_str in temp_array {
-            ip_array.append(self.calculateHextetVars(hextet_str: hextet_str))
+            ip_array.append(self.calculateHextetVars(hex_str: hextet_str))
         }
         return ip_array
     }
@@ -106,25 +106,64 @@ class ip6 {
     /**
      * Takes a short IP array and expands it into a long IP array by populating the void and adding leading zeroes
      */
-    private func convertToIPLongArray(ip_short_array: [[String:String]]) -> [[String:String]] {
-        // todo
+    private func convertToIPLongArray(_ip_short_array: [Hextet]) -> [Hextet] {
+        var ip_short_array = _ip_short_array // have to do this so we can modify the value
+        var ip_long_array = [Hextet]()
+        var void_inserted = false;
+        var void_array = [String]()
+        let void_size = self.calculateVoidSize(ip_short_array: ip_short_array);
+       
+        
+        for _ in 0 ..< void_size {
+            void_array.append("0000")
+        }
+
+        // Insert the void
+        for (index, hextet) in ip_short_array.enumerated() {
+            if (hextet.void == true) {
+                if (void_inserted == true) {
+                    // If the :: is at the start or end, two voids will be in the array. So only proceed if we haven't inserted a void yet
+                    ip_short_array.remove(at: index);
+                } else {
+                    // Insert the void
+                    for _ in void_array {
+                        ip_long_array.append(Hextet(
+                            int: 0,
+                            hex: "0",
+                            hex_long: "0000",
+                            void: false
+                        ))
+                    }
+                    void_inserted = true;
+                }
+            } else {
+                ip_long_array.append(hextet)
+            }
+        }
+
+        if (ip_long_array.count != 8) {
+            // todo - handle error
+            print("Error - long array ended up with not exactly 8 hextets")
+        }
+
+        return ip_long_array;
     }
     
     /**
      Analyses a shortened array to see how many hextets is represented by the void character (`::`)
      */
-    private func calculateVoidSize(ip_short_array: [[String:String]]) -> Int
+    private func calculateVoidSize(ip_short_array: [Hextet]) -> Int
     {
         // determine if there is even a void
-        var void = "false";
+        var void = false;
         var void_count = 0;
-        for ip in ip_short_array {
-            if (ip["void"] == "true") {
-                void = "true";
+        for hextet in ip_short_array {
+            if (hextet.void == true) {
+                void = true;
                 void_count += 1;
             }
         }
-        if (void == "false") {
+        if (void == false) {
             return 0;
         }
 
@@ -133,9 +172,9 @@ class ip6 {
     }
     
     /**
-     * Takes a hextet and replaces it with an array contaning various interpretations of that value
+     * Takes a hextet (hexadimal number between `0` and `FFFF`) and replaces it with an array contaning various interpretations of that value
      */
-    private func calculateHextetVars(hextet_str: String) -> Hextet
+    private func calculateHextetVars(hex_str: String) -> Hextet
     {
         
 //        var hextet: [String: Any] = [
@@ -146,18 +185,24 @@ class ip6 {
 //        ]
         var hextet = Hextet()
         
-        if (hextet_str == "") {
+        if (hex_str == "") {
             hextet.void = true;
         }
 
-        hextet.int = Int(hextet_str)!
-        hextet.hex = String(format:"%x",hextet_str)
-        hextet.hex_long = String(format:"%04x", hextet_str)
+        hextet.int = Int(hex_str) ?? 0
+        hextet.hex = String(format:"%x",Int(hex_str) ?? 0)
+        hextet.hex_long = String(format:"%04x", Int(hex_str) ?? 0)
         return hextet;
     }
     
     /**
-     Contains additional properties for each hextet
+     A hextet is a group of four characters in an IPv6 address. This contains properties for each hextet.
+     
+     - Parameters:
+        - int: The integer value of this sequence (valid values 0 - 65,536)
+        - hex: The hex value of this sequence (valid values "0" - "FFFF")
+        - hex_long: The hex value of this sequence with leading zeroes (valid values "0000" - "FFFF")
+        - void: Indicates whether this section is empty (represented as `::` in the original string). There should only be one void per address string.
      */
     
     struct Hextet {
@@ -183,7 +228,7 @@ class ip6 {
         // They did, proceed
         let ip_long_array = self.convertToIPShortArray(ip_string: ip_long_string_2)
         let ip_short_array = self.convertIPLongArrayToIPShortArray(ip_long_array: ip_long_array)
-        let ip_short_string = self.convertToIPShortString(ip_short_array: ip_short_array)
+        let ip_short_string = self.convertToIPShortString(ip_array: ip_short_array)
 
         return ip_short_string
     }
@@ -192,18 +237,15 @@ class ip6 {
     
     /**
      * Takes an IP address array and returns it as a string, separated by colons.
-     *
-     * @param $ip_array
-     * @return string
      */
-    private func convertToIPShortString(ip_array: [[String:String]]) -> String
+    private func convertToIPShortString(ip_array: [Hextet]) -> String
     {
-        var string: String
+        var string = ""
         var piece = ""
 
-        for (index, hextet) in ip_array.enumerated() {
-            if(hextet["void"] == "false") {
-                piece = hextet["hex"]!
+        for hextet in ip_array {
+            if(hextet.void == false) {
+                piece = hextet.hex
             } else {
                 piece = ""
             }
@@ -224,7 +266,7 @@ class ip6 {
     private func convertIPShortStringToLongString(ip_short_string: String) -> String
     {
         return self.convertToIPLongString(ip_long_array:
-            self.convertToIPLongArray(ip_short_array:
+            self.convertToIPLongArray(_ip_short_array:
                 self.convertToIPShortArray(ip_string:
                     ip_short_string
                 )
@@ -239,32 +281,33 @@ class ip6 {
 
     private func convertIPLongArrayToIPShortArray(ip_long_array: [Hextet]) -> [Hextet]
     {
-        var ip_short_array = [[String:Any]]()
-        var void_start = 0
-        var void_end = 0
-        var void_started = "false"
+        var ip_short_array = [Hextet]()
+        var void_start: Int?? = nil
+        var void_end: Int?? = nil
+        var void_started = false
 
-        var void = self.calculateVoid(ip_array:ip_long_array)
+        let void = self.calculateVoid(ip_array:ip_long_array)
 
-        if (void == "true") {
-            void_start = Int(void["beginning"])
-            void_end = Int(void_start + void["size"])
+        if (void.beginning >= 0) {
+            // just to prevent us operating if the default `-1` value was stored here
+            void_start = void.beginning
+            void_end = void.beginning + void.size
         }
 
         for (index, ip) in ip_long_array.enumerated() {
             if (index >= void_start && index < void_end) {
-                if (void_started == "false") {
+                if (void_started == false) {
                     // we are in the start of void
-                    ip_short_array.append(self.calculateHextetVars(hextet_str: ""))
-                    void_started = "true"
+                    ip_short_array.append(self.calculateHextetVars(hex_str: ""))
+                    void_started = true
                 } else {
                     continue; // we are still in the void, skip until we are no longer in the void
                 }
             } else {
                 // We are not in the void. Remove leading zeroes and save
-                var ip_hex = String(format: "%x", String(ip["hex_long"]!))
-                var ip_short = String(format: "%d", ip_hex)
-                ip_short_array[index] = self.calculateHextetVars(hextet_str: ip_short)
+                let ip_hex = String(format: "%x", ip.int)
+//                let ip_short = String(format: "%d", ip_hex)
+                ip_short_array.insert(self.calculateHextetVars(hex_str: ip_hex), at: index)
             }
         }
 
@@ -273,30 +316,27 @@ class ip6 {
 
     
     
-    private func calculateVoid(ip_array: [[String:String]]) -> [[String:String]]
+    private func calculateVoid(ip_array: [Hextet]) -> VoidCandidate
     {
-        var void_candidates = [[String:String]]()
-        var void_beginning = 0 // null
-        var void_size = 0 // null
-        var in_void = "false"
+        var void_candidates = [VoidCandidate]()
+        var void_beginning: Int?? = nil // null
+        var void_size: Int?? = nil // null
+        var in_void = false
 
-        for (index, ip) in ip_array.enumerated() {
-            if (String(ip["hex_long"]!) != "0000") {
-                if (in_void == "true") {
+        for (index, hextet) in ip_array.enumerated() {
+            if (hextet.hex_long != "0000") {
+                if (in_void == true) {
                     // We were already in a void previously? If so, close it
-                    void_candidates.append([
-                        "beginning": void_beginning,
-                        "size": void_size
-                        ])
+                    void_candidates.append(VoidCandidate(beginning: void_beginning, size: void_size))
                 }
-                in_void = "false";
-                void_beginning = 0 // null
-                void_size = 0 // null
+                in_void = false;
+                void_beginning = nil // null
+                void_size = nil // null
                 continue
             } else {
-                if (in_void == "false") {
+                if (in_void == false) {
                     // start a new void candidate
-                    in_void = "true";
+                    in_void = true;
                     void_beginning = index;
                     void_size = 1;
                 } else {
@@ -307,24 +347,33 @@ class ip6 {
         }
 
         // If the last hextet was a void candidate, close it
-        if (in_void == "true") {
-            void_candidates.append([
-                "beginning": void_beginning,
-                "size": void_size
-                ])
+        if (in_void == true) {
+            void_candidates.append(VoidCandidate(beginning: void_beginning, size: void_size))
         }
 
-        var best_size = 0
-        var best_candidate = [[String:String]]()
+        let best_size = 0
+        var best_candidate = VoidCandidate(beginning: -1, size: 0) // establishing a default value
 
-        for (index, candidate) in void_candidates.enumerated() {
-            if (Int(candidate["size"]) >= best_size) {
+        // Now, analyze all candidates to determine which one should become designated as the void
+        for candidate in void_candidates {
+            if (candidate.size >= best_size) {
                 let best_candidate = candidate
-                let best_size = candidate["size"];
+                let best_size = candidate.size
             }
         }
 
         return best_candidate
+    }
+    
+    /**
+     A helper structure. When analyzing a long IPv6 address with multiple hextets that are zero, we indicate each one as a candidate to be "the void"
+    - Parameters:
+    - beginning: The index that this hextet can be found in for the IPv6 address that it belongs to
+    - size: The number of hextets this void occupies. (The largest void will ultimately be selected to be "the void")
+     */
+    struct VoidCandidate {
+        var beginning: Int
+        var size: Int
     }
     
 }

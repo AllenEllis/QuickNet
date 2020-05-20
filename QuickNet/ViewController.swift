@@ -142,7 +142,7 @@ class ViewController: NSViewController
     
     func decreaseMaskSize() {
         let ip_obj = ip_view(ip_input: ip_input.stringValue)
-        
+
         // determine the next lowest prefix size
         var new_size = ip_obj.network_size - 1
         

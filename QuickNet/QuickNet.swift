@@ -12,11 +12,11 @@ import SwiftyJSON
 import UInt128
 
 // comment so that Colab does not interpret `#if ...` as a comment
-#if canImport(PythonKit)
-    import PythonKit
-#else
-    import Python
-#endif
+//#if canImport(PythonKit)
+//    import PythonKit
+//#else
+//    import Python
+//#endif
 
     // MARK: Class: ip_view
 
@@ -152,13 +152,22 @@ class ip_view {
                 self.network_size = 128
             }
             
-            let ip6 = SubnetCalc6(ip_address: self.ip_addr_str, network_size: network_size)
-            self.host_first_host = "tbd"
-            self.host_last_host = ip6.getIPAddressStringShort()
-            self.host_condensed = ip6.getIPAddressStringLong()
-            self.host_integer = String(ip6.getIPAddressInt())
+            let ip6 = IP6(ip_address_mixed: self.ip_addr_str, network_size: self.network_size)
             
-            self.cidr_notation = "/" + String(ip6.getNetworkSize())
+            self.host_first_host = "tbd"
+            self.host_last_host = "tbd"
+            self.host_condensed = ip6.ip_short_string
+            self.host_integer = ip6.ip_long_string
+            
+            self.cidr_notation = "/" + String(ip6.network_size)
+            
+//            let ip6 = SubnetCalc6(ip_address: self.ip_addr_str, network_size: network_size)
+//            self.host_first_host = "tbd"
+//            self.host_last_host = ip6.getIPAddressStringShort()
+//            self.host_condensed = ip6.getIPAddressStringLong()
+//            self.host_integer = String(ip6.getIPAddressInt())
+//
+//            self.cidr_notation = "/" + String(ip6.getNetworkSize())
             self.subnet_data = populate_table6()
         }
 
