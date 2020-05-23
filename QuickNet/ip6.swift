@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 import UInt128
+import Cocoa
 
 
 /**
@@ -72,10 +73,7 @@ class IP6 {
         var pos = 31
         while (flexbits > 0) {
           // Get the character at this position
-            let orig_start = addr_hex_first.index(addr_hex_first.startIndex, offsetBy: pos)
-            let orig_end   = addr_hex_first.index(addr_hex_first.endIndex,   offsetBy: pos-1)
-            let orig_range = orig_start..<orig_end
-            let orig_char  = addr_hex_first[orig_range]
+            let orig_char  = addr_hex_first.substring(with:(pos)..<(pos+1))
             let orig_first = orig_char
             let orig_last = orig_char
 
@@ -91,8 +89,8 @@ class IP6 {
 
           // Last address: OR it with (2^flexbits)-1, with flexbits limited to 4 at a time
             let base = Double(2)
-            let exp = Double(min(4, flexbits) - 1)
-            let new_val_last = origval_last | Int(pow(base,exp) )
+            let exp = Double(min(4, flexbits))
+            let new_val_last = origval_last | Int(pow(base,exp)-1)
 
           // Convert them back to hexadecimal characters
             let new_first = Character(String(format: "%x", new_val_first))
@@ -110,27 +108,40 @@ class IP6 {
         }
 
         // Report to user
-        self.first_host = addr_hex_first
-        self.last_host = addr_hex_last
+        self.first_host = self.convertLongAddrHexToIPString(addr_hex: addr_hex_first)
+        self.last_host = self.convertLongAddrHexToIPString(addr_hex: addr_hex_last)
         
         return
-        
-//        // Convert the hexadecimal strings to a binary string
-//        var addr_bin_first = Int32(String(Int(addr_hex_first, radix: 16)!, radix: 2))
-//        var addr_bin_last = Int32(String(Int(addr_hex_last, radix: 16)!, radix: 2))
-//
-//        // And create an IPv6 address from the binary string
-//        var addr_str_first = inet_ntop(addr_bin_first)
-//        var addr_str_last = inet_ntop(addr_bin_last)
-//
-//        // Make the strings longer
-//        addr_str_first = self.convertIPShortStringToLongString(addr_str_first)
-//        addr_str_last = self.convertIPShortStringToLongString(addr_str_last)
-//
-//        // Report to user
-//        self.first_host = addr_str_first
-//        self.last_host = addr_str_last
+
     }
+    
+    /**
+     Takes a long hexadecimal string and inserts `:` symbols to make it appear like an IP address.
+     
+     This function requires a full 32 character string as an input
+     */
+    private func convertLongAddrHexToIPString(addr_hex: String) -> String {
+        if(addr_hex.count != 32) {
+//            showAlert(messageText: "Error code 101", informativeText: "Sorry, there wasn an error.\n\nFunction convertLongAddrHexToIPString requires an input that is 32 characters long, but this one is \(addr_hex.count). The string was:\n\n\(addr_hex)")
+            return "" // todo - throw error
+        }
+        var pos = 0
+        var ip_string = ""
+        while (pos < 32) {
+            let orig_chars  = addr_hex.substring(with:(pos)..<(pos+4))
+            ip_string.append(String(orig_chars))
+            
+            // If we're not on the last hextet
+            if(pos < 28) {
+                ip_string.append(":")
+            }
+            pos = pos + 4
+        }
+        
+        
+        return ip_string
+    }
+    
     
     /**
      Replace characters in a string based on their index
@@ -470,5 +481,30 @@ class IP6 {
         var beginning: Int
         var size: Int
     }
+    
+}
+
+
+extension String {
+    func index(from: Int) -> Index {
+        return self.index(startIndex, offsetBy: from)
+    }
+
+    func substring(from: Int) -> String {
+        let fromIndex = index(from: from)
+        return String(self[fromIndex...])
+    }
+
+    func substring(to: Int) -> String {
+        let toIndex = index(from: to)
+        return String(self[..<toIndex])
+    }
+
+    func substring(with r: Range<Int>) -> String {
+        let startIndex = index(from: r.lowerBound)
+        let endIndex = index(from: r.upperBound)
+        return String(self[startIndex..<endIndex])
+    }
+    
     
 }
