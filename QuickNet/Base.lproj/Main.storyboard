@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -715,7 +715,7 @@
                     <window key="window" title="QuickNet" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" titlebarAppearsTransparent="YES" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="282" y="239" width="500" height="670"/>
+                        <rect key="contentRect" x="282" y="239" width="500" height="870"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="3440" height="1417"/>
                         <value key="minSize" type="size" width="300" height="245"/>
                         <value key="maxSize" type="size" width="1920" height="1920"/>
@@ -736,11 +736,11 @@
             <objects>
                 <viewController id="OUC-Xm-M8w" customClass="ViewController" customModule="QuickNet" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" autoresizesSubviews="NO" misplaced="YES" id="aFc-kY-PjM" userLabel="New Home">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="810"/>
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="987"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <stackView orientation="horizontal" alignment="centerY" spacing="7" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AYD-Im-g0c">
-                                <rect key="frame" x="20" y="762" width="460" height="28"/>
+                                <rect key="frame" x="20" y="939" width="460" height="28"/>
                                 <beginningViews>
                                     <textField toolTip="Enter an IP address and network mask. Examples: 10.0.0.1/24 or 2001:db8::/32" verticalHuggingPriority="750" misplaced="YES" allowsExpansionToolTips="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0VO-Mb-Xdx">
                                         <rect key="frame" x="0.0" y="3" width="205" height="22"/>
@@ -865,10 +865,10 @@ DQ
                                 </customSpacing>
                             </stackView>
                             <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="0mC-3Y-5ft">
-                                <rect key="frame" x="20" y="739" width="460" height="5"/>
+                                <rect key="frame" x="20" y="916" width="460" height="5"/>
                             </box>
                             <gridView ambiguous="YES" xPlacement="leading" yPlacement="fill" rowAlignment="none" columnSpacing="32" translatesAutoresizingMaskIntoConstraints="NO" id="pyc-vS-DOi" userLabel="Masks">
-                                <rect key="frame" x="20" y="425" width="206" height="91"/>
+                                <rect key="frame" x="20" y="596" width="206" height="91"/>
                                 <rows>
                                     <gridRow yPlacement="top" id="PDC-Az-eLJ"/>
                                     <gridRow id="eep-iZ-dpv"/>
@@ -954,7 +954,7 @@ DQ
                                 </gridCells>
                             </gridView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ogI-Hg-szf">
-                                <rect key="frame" x="18" y="376" width="77" height="22"/>
+                                <rect key="frame" x="18" y="547" width="77" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="X02-Us-Bdc"/>
                                 </constraints>
@@ -965,13 +965,13 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <scrollView ambiguous="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lb8-DW-rvI">
-                                <rect key="frame" x="20" y="0.0" width="460" height="368"/>
+                                <rect key="frame" x="20" y="0.0" width="460" height="539"/>
                                 <clipView key="contentView" id="JZb-Pp-pKD">
-                                    <rect key="frame" x="1" y="0.0" width="458" height="367"/>
+                                    <rect key="frame" x="1" y="0.0" width="458" height="538"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" rowSizeStyle="automatic" headerView="m61-IV-s3b" viewBased="YES" id="dIp-M7-5cg">
-                                            <rect key="frame" x="0.0" y="0.0" width="458" height="342"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="458" height="513"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1114,7 +1114,7 @@ DQ
                                     </subviews>
                                 </clipView>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="368" id="r1e-yw-K0w"/>
+                                    <constraint firstAttribute="height" constant="660" id="r1e-yw-K0w"/>
                                 </constraints>
                                 <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="KiK-bf-7sp">
                                     <rect key="frame" x="1" y="352" width="458" height="15"/>
@@ -1130,7 +1130,7 @@ DQ
                                 </tableHeaderView>
                             </scrollView>
                             <gridView ambiguous="YES" xPlacement="leading" yPlacement="fill" rowAlignment="none" rowSpacing="7" columnSpacing="43" translatesAutoresizingMaskIntoConstraints="NO" id="Wac-Qa-2pA" userLabel="Hosts">
-                                <rect key="frame" x="20" y="533" width="250" height="189"/>
+                                <rect key="frame" x="20" y="704" width="250" height="189"/>
                                 <rows>
                                     <gridRow yPlacement="top" id="hgI-i2-uF3" userLabel="Title"/>
                                     <gridRow id="M2i-MW-jzP" userLabel="Network"/>
@@ -1346,7 +1346,7 @@ DQ
                 </viewController>
                 <customObject id="Oeh-wv-TTg" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="98" y="887"/>
+            <point key="canvasLocation" x="98" y="1165.5"/>
         </scene>
         <!--IPv6-->
         <scene sceneID="Cyv-4r-RB0">

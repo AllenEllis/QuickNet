@@ -216,7 +216,7 @@ class ip_view {
             switch (i) {
                 
             case 24:
-                example = "VLAN"
+                example = "LAN"
             case 30:
                 example = "Peer to Peer link"
             case 32:
@@ -241,37 +241,79 @@ class ip_view {
         
     }
     
-    func populate_table6() -> [[String: String]] {
-        
     
-        let data = [
-         [
-          "subnet" : "2620:13d::",
-          "prefix" : "/32",
-          "count" : "1",
-          "example" : "Service Provider",
-         ],
-         [
-           "subnet" : "2620:13d:f000::",
-           "prefix" : "/36",
-           "count" : "16",
-           "example" : "Data Center",
-          ],
-         [
-           "subnet" : "2620:13d:ff00::",
-           "prefix" : "/40",
-           "count" : "256",
-           "example" : "Region",
-          ],
-         [
-           "subnet" : "2620:13d:ff00::",
-           "prefix" : "/44",
-           "count" : "4096",
-           "example" : "Campus",
-          ]
-        ]
-            
-        return(data)
+    func populate_table6() -> [[String: String]] {
+
+      
+              var data = [[String: String]]()
+              
+              var i = 128
+              
+              while (i >= 0) {
+                  
+                let i_ip_obj = IP6(ip_address_mixed: self.ip_addr_str, network_size: i)
+                  
+                  
+                  let diff = i - self.network_size
+                let count = floor(pow(Double(2),Double(diff)))
+                let formatter = NumberFormatter()
+
+                if(count > 100000000) {
+
+                    formatter.usesSignificantDigits = true
+                    formatter.maximumSignificantDigits = 1
+                    formatter.numberStyle = .spellOut
+                }
+                else
+                {
+                    formatter.numberStyle = .decimal
+                    formatter.usesSignificantDigits = false
+                    
+                }
+                
+                formatter.maximumFractionDigits = 0
+                formatter.locale = Locale.current
+                let displayValue: String = formatter.string(from: NSNumber(value: count))!
+                  
+                  var example = ""
+                  
+                  switch (i) {
+                  case 12:
+                      example = "RIR"
+                  case 24: 
+                      example = "Large ISP"
+                  case 32:
+                      example = "Cloud Provider"
+                  case 36:
+                      example = "Small ISP"
+                  case 48:
+                      example = "Large Business (Site)"
+                  case 52:
+                      example = ""
+                  case 56:
+                      example = "Small Business"
+                    case 60:
+                        example = "Residential"
+                  case 64:
+                      example = "LAN"
+                  case 127:
+                      example = "Peer to peer link"
+                  case 128:
+                      example = "Host"
+                  default:
+                      example = ""
+                }
+                  
+                  data.append( [
+                      "subnet" : i_ip_obj.first_host,
+                      "prefix" : "/\(i)",
+                      "count" : displayValue,
+                      "example" : example
+                  ])
+                  i -= 4
+              }
+ 
+              return(data)
     }
     
         

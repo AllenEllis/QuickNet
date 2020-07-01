@@ -63,7 +63,7 @@ class IP6 {
         let addr_given_hex = addr_given_str.replacingOccurrences(of: ":", with: "")
 
         // Calculate the number of 'flexible' bits
-        var flexbits = 128 - prefixlen
+        var flexbits = 64 - prefixlen
 
         // Build the hexadecimal strings of the first and last addresses
         var addr_hex_first = addr_given_hex

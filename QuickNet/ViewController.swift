@@ -131,6 +131,11 @@ class ViewController: NSViewController
             new_size = 32 // don't allow IPv4 to go higher than a /32
         }
         
+        if(ip_obj.detect_ipv_type() == "6" && new_size > 128)
+        {
+            new_size = 128 // don't allow IPv4 to go higher than a /32
+        }
+        
         let new_ip = ip_obj.ip_addr_str
         
         let new_ip_input = "\(new_ip)/\(new_size)"
@@ -189,12 +194,34 @@ class ViewController: NSViewController
     func doCalc() {
         let ip_obj = ip_view(ip_input: ip_input.stringValue)
         
-        if(ip_obj.ipv_type == "0")
-        {
+        func fail() {
             showAlert(messageText: "Please enter a valid query", informativeText: "Examples include:\n10.0.0.1\n10.0.0.1/8\n10.0.0.1/255.0.0.0\n10.0.0.1/255.255.255.0\n\nIPv6:\n2001:db8::\n2001:db8::/32")
-            return
             // todo: fail for user with error message
         }
+        
+        if(ip_obj.ipv_type == "0")
+        {
+            fail()
+            return
+        }
+        
+        if(ip_obj.ipv_type == "4")
+        {
+            if(ip_obj.network_size < 0 || ip_obj.network_size > 32) {
+                fail()
+                return
+            }
+        }
+        
+        if(ip_obj.ipv_type == "6") {
+            if(ip_obj.network_size < 0 || ip_obj.network_size > 128) {
+                fail()
+                return
+            }
+        }
+        
+        
+
         
         if(ip_obj.ipv_type == "4")
         {
